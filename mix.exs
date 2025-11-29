@@ -7,6 +7,7 @@ defmodule DukascopyEx.MixProject do
       version: "0.1.0",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       preferred_cli_env: [ci: :test],
       aliases: aliases(),
@@ -26,9 +27,12 @@ defmodule DukascopyEx.MixProject do
     [
       tidewave:
         "run --no-halt -e 'Agent.start(fn -> Bandit.start_link(plug: Tidewave, port: 4000) end)'",
-      ci: ["format", "credo", "test --include network"]
+      ci: ["format", "credo", "test"]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps() do
@@ -37,9 +41,10 @@ defmodule DukascopyEx.MixProject do
       {:req, "~> 0.5"},
       {:lzma, "~> 0.1"},
 
-      ## Dev
+      ## Dev/Test
       {:tidewave, "~> 0.5", only: :dev},
       {:bandit, "~> 1.0", only: :dev},
+      {:plug, "~> 1.16", only: [:dev, :test]},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end

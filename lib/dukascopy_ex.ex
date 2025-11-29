@@ -52,8 +52,10 @@ defmodule DukascopyEx do
 
   ## Required Options
 
-    * `:from` and `:to` - Start and end of the date range (DateTime or Date)
-    * OR `:date_range` - A `Date.Range` struct (e.g., `Date.range(~D[2024-01-01], ~D[2024-01-31])`)
+    * `:from` and `:to` - Start and end of the date range (DateTime or Date).
+      Uses half-open interval `[from, to)`: from is inclusive, to is exclusive.
+    * OR `:date_range` - A `Date.Range` struct (e.g., `Date.range(~D[2024-01-01], ~D[2024-01-31])`).
+      Both ends are inclusive `[first, last]`.
 
   ## Optional Options
 
@@ -66,10 +68,11 @@ defmodule DukascopyEx do
     * `:pause_between_batches_ms` - Pause between batches in ms (default: `1000`)
     * `:use_cache` - Enable file caching (default: `false`)
     * `:cache_folder_path` - Cache folder path (default: `".dukascopy-cache"`)
-    * `:retry_count` - Number of retries per request (default: `3`)
+    * `:max_retries` - Number of retries per request (default: `3`)
     * `:retry_on_empty` - Retry on empty response (default: `false`)
     * `:fail_after_retry_count` - Raise error after all retries exhausted (default: `true`)
-    * `:pause_between_retries_ms` - Pause between retries in ms (default: `500`)
+    * `:retry_delay` - Delay between retries. Can be an integer (fixed ms)
+      or a function `(attempt :: integer) -> ms`. Default: exponential backoff `200 * 2^attempt`
     * `:market_open` - Market open time for daily/weekly/monthly alignment (default: `~T[00:00:00]`)
     * `:weekly_open` - Day the week starts (default: `:monday`)
 

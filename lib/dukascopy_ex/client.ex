@@ -8,9 +8,11 @@ defmodule DukascopyEx.Client do
   @default_cache_folder_path ".dukascopy-cache"
 
   @client_options [
-    :retry_count,
-    :pause_between_retries_ms,
+    :plug,
+    :max_retries,
+    :retry_delay,
     :retry_on_empty,
+    :retry_log_level,
     :use_cache,
     :cache_folder_path,
     :fail_after_retry_count
@@ -35,13 +37,10 @@ defmodule DukascopyEx.Client do
 
   defp build_request(opts) do
     client_opts = Keyword.take(opts, @client_options)
-    retry_delay = Keyword.get(client_opts, :pause_between_retries_ms, 500)
 
     Req.new(
       base_url: @base_url,
       retry: &should_retry/2,
-      max_retries: Keyword.get(client_opts, :retry_count, 3),
-      retry_delay: fn _attempt -> retry_delay end,
       decode_body: false,
       compressed: false
     )
@@ -67,8 +66,11 @@ defmodule DukascopyEx.Client do
   defp decompress_lzma({request, %Req.Response{status: 200, body: body} = response})
        when byte_size(body) > 0 do
     case LZMA.lzma_decompress(body) do
-      {:ok, decompressed} -> {request, %Req.Response{response | body: decompressed}}
-      {:error, _} = err -> {request, err}
+      {:ok, decompressed} ->
+        {request, %Req.Response{response | body: decompressed}}
+
+      {:error, reason} ->
+        {request, RuntimeError.exception("LZMA decompression failed: #{reason}")}
     end
   end
 
@@ -120,14 +122,17 @@ defmodule DukascopyEx.Client do
   defp handle_response({:ok, %Req.Response{status: 200, body: body}}, _opts), do: {:ok, body}
   defp handle_response({:ok, %Req.Response{status: 404}}, _opts), do: {:ok, <<>>}
 
-  defp handle_response({:ok, %Req.Response{status: status}}, _opts),
-    do: {:error, {:http_error, status}}
+  defp handle_response({:ok, %Req.Response{status: status}}, opts) do
+    case Keyword.get(opts, :fail_after_retry_count, true) do
+      true -> {:error, {:http_error, status}}
+      false -> {:ok, <<>>}
+    end
+  end
 
   defp handle_response({:error, exception}, opts) do
-    if Keyword.get(opts, :fail_after_retry_count, true) do
-      {:error, {:retry_exhausted, exception}}
-    else
-      {:ok, <<>>}
+    case Keyword.get(opts, :fail_after_retry_count, true) do
+      true -> {:error, exception}
+      false -> {:ok, <<>>}
     end
   end
 end

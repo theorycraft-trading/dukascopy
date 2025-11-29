@@ -6,24 +6,6 @@ defmodule DukascopyEx.Options do
   alias DukascopyEx.Instruments
   alias TheoryCraft.TimeFrame
 
-  @default_opts [
-    price_type: :bid,
-    utc_offset: ~T[00:00:00],
-    timezone: "Etc/UTC",
-    volume_units: :millions,
-    ignore_flats: true,
-    batch_size: 10,
-    pause_between_batches_ms: 1000,
-    use_cache: false,
-    cache_folder_path: ".dukascopy-cache",
-    retry_count: 3,
-    retry_on_empty: false,
-    fail_after_retry_count: true,
-    pause_between_retries_ms: 500,
-    market_open: ~T[00:00:00],
-    weekly_open: :monday
-  ]
-
   @type timeframe :: :ticks | String.t()
   @type validated_opts :: Keyword.t()
 
@@ -34,8 +16,9 @@ defmodule DukascopyEx.Options do
 
   ## Required options
 
-    * `:from` and `:to` - Start and end of the date range (DateTime or Date)
-    * OR `:date_range` - A `Date.Range` struct
+    * `:from` and `:to` - Start and end of the date range (DateTime or Date).
+      Uses half-open interval `[from, to)`: from is inclusive, to is exclusive.
+    * OR `:date_range` - A `Date.Range` struct. Both ends are inclusive `[first, last]`.
 
   ## Optional options
 
@@ -48,10 +31,11 @@ defmodule DukascopyEx.Options do
     * `:pause_between_batches_ms` - Pause between batches in ms (default: `1000`)
     * `:use_cache` - Enable file caching (default: `false`)
     * `:cache_folder_path` - Cache folder path (default: `".dukascopy-cache"`)
-    * `:retry_count` - Number of retries per request (default: `3`)
+    * `:max_retries` - Number of retries per request (default: `3`)
     * `:retry_on_empty` - Retry on empty response (default: `false`)
     * `:fail_after_retry_count` - Raise error after all retries (default: `true`)
-    * `:pause_between_retries_ms` - Pause between retries in ms (default: `500`)
+    * `:retry_delay` - Delay between retries. Can be an integer (fixed ms)
+      or a function `(attempt :: integer) -> ms`. Default: exponential backoff `200 * 2^attempt`
     * `:market_open` - Market open time for alignment (default: `~T[00:00:00]`)
     * `:weekly_open` - Week start day (default: `:monday`)
 
@@ -82,7 +66,26 @@ defmodule DukascopyEx.Options do
   Returns the default options.
   """
   @spec defaults() :: Keyword.t()
-  def defaults, do: @default_opts
+  def defaults() do
+    [
+      price_type: :bid,
+      utc_offset: ~T[00:00:00],
+      timezone: "Etc/UTC",
+      volume_units: :millions,
+      ignore_flats: true,
+      batch_size: 10,
+      pause_between_batches_ms: 1000,
+      use_cache: false,
+      cache_folder_path: ".dukascopy-cache",
+      max_retries: 3,
+      retry_on_empty: false,
+      fail_after_retry_count: true,
+      # Default exponential backoff: 200ms, 400ms, 800ms, 1600ms...
+      retry_delay: &trunc(200 * :math.pow(2, &1)),
+      market_open: ~T[00:00:00],
+      weekly_open: :monday
+    ]
+  end
 
   # Private functions
 
@@ -135,7 +138,7 @@ defmodule DukascopyEx.Options do
   end
 
   defp merge_and_validate_opts(opts) do
-    merged = Keyword.merge(@default_opts, opts)
+    merged = Keyword.merge(defaults(), opts)
 
     with {:ok, price_type} <- extract_price_type(merged),
          {:ok, volume_units} <- extract_volume_units(merged),
@@ -143,8 +146,8 @@ defmodule DukascopyEx.Options do
          {:ok, weekly_open} <- extract_weekly_open(merged),
          {:ok, batch_size} <- extract_positive_integer(merged, :batch_size),
          {:ok, pause_batches} <- extract_non_negative_integer(merged, :pause_between_batches_ms),
-         {:ok, retry_count} <- extract_non_negative_integer(merged, :retry_count),
-         {:ok, pause_retries} <- extract_non_negative_integer(merged, :pause_between_retries_ms) do
+         {:ok, max_retries} <- extract_non_negative_integer(merged, :max_retries),
+         {:ok, retry_delay} <- extract_retry_delay(merged) do
       result =
         Keyword.merge(
           merged,
@@ -154,8 +157,8 @@ defmodule DukascopyEx.Options do
           weekly_open: weekly_open,
           batch_size: batch_size,
           pause_between_batches_ms: pause_batches,
-          retry_count: retry_count,
-          pause_between_retries_ms: pause_retries
+          max_retries: max_retries,
+          retry_delay: retry_delay
         )
 
       {:ok, result}
@@ -207,6 +210,14 @@ defmodule DukascopyEx.Options do
     end
   end
 
+  defp extract_retry_delay(opts) do
+    case Keyword.get(opts, :retry_delay) do
+      n when is_integer(n) and n >= 0 -> {:ok, n}
+      f when is_function(f, 1) -> {:ok, f}
+      other -> {:error, {:invalid_retry_delay, other}}
+    end
+  end
+
   @error_messages %{
     missing_date_range: "Missing date range. Provide :from and :to, or :date_range",
     invalid_date_range: "Invalid date range. Use :from/:to OR :date_range, not both"
@@ -222,7 +233,9 @@ defmodule DukascopyEx.Options do
     invalid_utc_offset: {"Invalid utc_offset: ~s. Use a Time struct (e.g., ~T[02:30:00])", []},
     invalid_weekly_open: {"Invalid weekly_open: ~s. Use :monday, :tuesday, etc.", []},
     invalid_positive_integer: {"Invalid ~s: ~s. Must be a positive integer", []},
-    invalid_non_negative_integer: {"Invalid ~s: ~s. Must be a non-negative integer", []}
+    invalid_non_negative_integer: {"Invalid ~s: ~s. Must be a non-negative integer", []},
+    invalid_retry_delay:
+      {"Invalid retry_delay: ~s. Must be a non-negative integer or a function/1", []}
   }
 
   defp format_error(error) when is_atom(error) do
