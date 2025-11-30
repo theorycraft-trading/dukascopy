@@ -13,11 +13,11 @@ defmodule DukascopyEx do
       |> Enum.take(100)
 
       # Stream 5-minute bars
-      DukascopyEx.stream("EUR/USD", "m5", from: ~D[2024-01-01], to: ~D[2024-01-31])
+      DukascopyEx.stream("EUR/USD", :m5, from: ~D[2024-01-01], to: ~D[2024-01-31])
       |> Enum.to_list()
 
       # Stream hourly bars with options
-      DukascopyEx.stream("EUR/USD", "h1",
+      DukascopyEx.stream("EUR/USD", :h1,
         from: ~D[2024-01-01],
         to: ~D[2024-12-31],
         price_type: :mid,
@@ -26,20 +26,22 @@ defmodule DukascopyEx do
 
   ## Supported Timeframes
 
+  Timeframes can be specified as strings or atoms (e.g., `"m5"` or `:m5`).
+
     - `:ticks` - Raw tick data
-    - `"t<N>"` - N ticks per bar (e.g., "t5")
-    - `"s<N>"` - N-second bars (e.g., "s30")
-    - `"m<N>"` - N-minute bars (e.g., "m1", "m5", "m15")
-    - `"h<N>"` - N-hour bars (e.g., "h1", "h4")
-    - `"D<N>"` - N-day bars (e.g., "D", "D3")
-    - `"W<N>"` - N-week bars (e.g., "W")
-    - `"M<N>"` - N-month bars (e.g., "M")
+    - `t<N>` - N ticks per bar (e.g., `:t5`)
+    - `s<N>` - N-second bars (e.g., `:s30`)
+    - `m<N>` - N-minute bars (e.g., `:m1`, `:m5`, `:m15`)
+    - `h<N>` - N-hour bars (e.g., `:h1`, `:h4`)
+    - `D<N>` - N-day bars (e.g., `:D`, `:D3`)
+    - `W<N>` - N-week bars (e.g., `:W`)
+    - `M<N>` - N-month bars (e.g., `:M`)
 
   """
 
   alias DukascopyEx.{Options, StreamBuilder}
 
-  @type timeframe :: :ticks | String.t()
+  @type timeframe :: :ticks | atom() | String.t()
 
   @doc """
   Creates a lazy stream of ticks or bars for an instrument and time period.
@@ -47,7 +49,7 @@ defmodule DukascopyEx do
   ## Parameters
 
     * `instrument` - Trading instrument (e.g., "EUR/USD", "AAPL.US/USD")
-    * `timeframe` - Target timeframe: `:ticks` or a TheoryCraft timeframe string
+    * `timeframe` - Target timeframe: `:ticks` or a TheoryCraft timeframe (atom or string)
     * `opts` - Options keyword list (see below)
 
   ## Required Options

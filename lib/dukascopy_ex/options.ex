@@ -6,7 +6,6 @@ defmodule DukascopyEx.Options do
   alias DukascopyEx.Instruments
   alias TheoryCraft.TimeFrame
 
-  @type timeframe :: :ticks | String.t()
   @type validated_opts :: Keyword.t()
 
   @doc """
@@ -40,7 +39,7 @@ defmodule DukascopyEx.Options do
     * `:weekly_open` - Week start day (default: `:monday`)
 
   """
-  @spec validate(String.t(), timeframe(), Keyword.t()) ::
+  @spec validate(String.t(), DukascopyEx.timeframe(), Keyword.t()) ::
           {:ok, validated_opts()} | {:error, term()}
   def validate(instrument, timeframe, opts) do
     with :ok <- validate_instrument(instrument),
@@ -54,7 +53,7 @@ defmodule DukascopyEx.Options do
   @doc """
   Same as `validate/3` but raises on error.
   """
-  @spec validate!(String.t(), timeframe(), Keyword.t()) :: validated_opts()
+  @spec validate!(String.t(), DukascopyEx.timeframe(), Keyword.t()) :: validated_opts()
   def validate!(instrument, timeframe, opts) do
     case validate(instrument, timeframe, opts) do
       {:ok, validated_opts} -> validated_opts
@@ -98,14 +97,12 @@ defmodule DukascopyEx.Options do
 
   defp validate_timeframe(:ticks), do: :ok
 
-  defp validate_timeframe(tf) when is_binary(tf) do
-    case TimeFrame.parse(tf) do
-      {:ok, _} -> :ok
-      :error -> {:error, {:invalid_timeframe, tf}}
+  defp validate_timeframe(tf) do
+    case TimeFrame.valid?(tf) do
+      true -> :ok
+      false -> {:error, {:invalid_timeframe, tf}}
     end
   end
-
-  defp validate_timeframe(tf), do: {:error, {:invalid_timeframe, tf}}
 
   defp extract_date_range(opts) do
     from = Keyword.get(opts, :from)
