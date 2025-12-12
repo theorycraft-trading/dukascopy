@@ -1,0 +1,312 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# DukascopyEx
+
+```elixir
+Mix.install(
+  [
+    {:tzdata, "~> 1.1"},
+    {:dukascopy_ex, path: Path.join(__DIR__, "..")},
+    {:theory_craft, github: "theorycraft-trading/theory_craft"},
+    {:kino_theory_craft, github: "theorycraft-trading/kino_theory_craft"}
+  ],
+  consolidate_protocols: false
+)
+
+Application.put_env(:elixir, :time_zone_database, Tzdata.TimeZoneDatabase)
+```
+
+## Instruments
+
+```elixir
+DukascopyEx.Instruments.all()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["0005.HK/HKD", "0027.HK/HKD", "0175.HK/HKD", "0291.HK/HKD", "0386.HK/HKD", "0388.HK/HKD",
+ "0700.HK/HKD", "0857.HK/HKD", "0883.HK/HKD", "0939.HK/HKD", "0941.HK/HKD", "0998.HK/HKD",
+ "1093.HK/HKD", "1177.HK/HKD", "1288.HK/HKD", "1299.HK/HKD", "1398.HK/HKD", "1810.HK/HKD",
+ "1918.HK/HKD", "2007.HK/HKD", "2018.HK/HKD", "2318.HK/HKD", "2388.HK/HKD", "2502.JP/JPY",
+ "2503.JP/JPY", "2628.HK/HKD", "2822.HK/HKD", "2828.HK/HKD", "2836.HK/HKD", "2914.JP/JPY",
+ "3188.HK/HKD", "3333.HK/HKD", "3382.JP/JPY", "3436.JP/JPY", "3968.HK/HKD", "3988.HK/HKD",
+ "4004.JP/JPY", "4005.JP/JPY", "4063.JP/JPY", "4452.JP/JPY", "4502.JP/JPY", "4503.JP/JPY",
+ "4507.JP/JPY", "4523.JP/JPY", "4543.JP/JPY", "4689.JP/JPY", "4911.JP/JPY", "5108.JP/JPY",
+ "5301.JP/JPY", "5401.JP/JPY", ...]
+```
+
+```elixir
+DukascopyEx.Instruments.forex()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["AED/CNH", "AED/CZK", "AED/HKD", "AED/HUF", "AED/JPY", "AED/MXN", "AED/RON", "AED/SAR", "AED/THB",
+ "AED/TRY", "AED/ZAR", "AUD/AED", "AUD/CAD", "AUD/CHF", "AUD/CNH", "AUD/CZK", "AUD/DKK", "AUD/HKD",
+ "AUD/HUF", "AUD/ILS", "AUD/JPY", "AUD/MXN", "AUD/NOK", "AUD/NZD", "AUD/PLN", "AUD/RON", "AUD/SAR",
+ "AUD/SEK", "AUD/SGD", "AUD/THB", "AUD/TRY", "AUD/USD", "AUD/ZAR", "CAD/AED", "CAD/CHF", "CAD/CNH",
+ "CAD/CZK", "CAD/DKK", "CAD/HKD", "CAD/HUF", "CAD/ILS", "CAD/JPY", "CAD/MXN", "CAD/NOK", "CAD/PLN",
+ "CAD/RON", "CAD/SAR", "CAD/SEK", "CAD/SGD", "CAD/THB", ...]
+```
+
+```elixir
+DukascopyEx.Instruments.forex_majors()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["AUD/USD", "EUR/USD", "GBP/USD", "NZD/USD", "USD/CAD", "USD/CHF", "USD/JPY"]
+```
+
+```elixir
+DukascopyEx.Instruments.forex_crosses()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["AED/CNH", "AED/CZK", "AED/HKD", "AED/HUF", "AED/JPY", "AED/MXN", "AED/RON", "AED/SAR", "AED/THB",
+ "AED/TRY", "AED/ZAR", "AUD/AED", "AUD/CAD", "AUD/CHF", "AUD/CNH", "AUD/CZK", "AUD/DKK", "AUD/HKD",
+ "AUD/HUF", "AUD/ILS", "AUD/JPY", "AUD/MXN", "AUD/NOK", "AUD/NZD", "AUD/PLN", "AUD/RON", "AUD/SAR",
+ "AUD/SEK", "AUD/SGD", "AUD/THB", "AUD/TRY", "AUD/ZAR", "CAD/AED", "CAD/CHF", "CAD/CNH", "CAD/CZK",
+ "CAD/DKK", "CAD/HKD", "CAD/HUF", "CAD/ILS", "CAD/JPY", "CAD/MXN", "CAD/NOK", "CAD/PLN", "CAD/RON",
+ "CAD/SAR", "CAD/SEK", "CAD/SGD", "CAD/THB", "CAD/TRY", ...]
+```
+
+```elixir
+DukascopyEx.Instruments.stocks()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["0005.HK/HKD", "0027.HK/HKD", "0175.HK/HKD", "0291.HK/HKD", "0386.HK/HKD", "0388.HK/HKD",
+ "0700.HK/HKD", "0857.HK/HKD", "0883.HK/HKD", "0939.HK/HKD", "0941.HK/HKD", "0998.HK/HKD",
+ "1093.HK/HKD", "1177.HK/HKD", "1288.HK/HKD", "1299.HK/HKD", "1398.HK/HKD", "1810.HK/HKD",
+ "1918.HK/HKD", "2007.HK/HKD", "2018.HK/HKD", "2318.HK/HKD", "2388.HK/HKD", "2502.JP/JPY",
+ "2503.JP/JPY", "2628.HK/HKD", "2914.JP/JPY", "3333.HK/HKD", "3382.JP/JPY", "3436.JP/JPY",
+ "3968.HK/HKD", "3988.HK/HKD", "4004.JP/JPY", "4005.JP/JPY", "4063.JP/JPY", "4452.JP/JPY",
+ "4502.JP/JPY", "4503.JP/JPY", "4507.JP/JPY", "4523.JP/JPY", "4543.JP/JPY", "4689.JP/JPY",
+ "4911.JP/JPY", "5108.JP/JPY", "5301.JP/JPY", "5401.JP/JPY", "6098.JP/JPY", "6301.JP/JPY",
+ "6367.JP/JPY", "6501.JP/JPY", ...]
+```
+
+```elixir
+DukascopyEx.Instruments.metals()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["XAG/AED", "XAG/AUD", "XAG/CAD", "XAG/CHF", "XAG/CNH", "XAG/CZK", "XAG/DKK", "XAG/EUR", "XAG/GBP",
+ "XAG/HKD", "XAG/HUF", "XAG/ILS", "XAG/JPY", "XAG/MXN", "XAG/NOK", "XAG/NZD", "XAG/PLN", "XAG/RON",
+ "XAG/SAR", "XAG/SEK", "XAG/SGD", "XAG/THB", "XAG/TRY", "XAG/USD", "XAG/ZAR", "XAU/AED", "XAU/AUD",
+ "XAU/CAD", "XAU/CHF", "XAU/CNH", "XAU/CZK", "XAU/DKK", "XAU/EUR", "XAU/GBP", "XAU/HKD", "XAU/HUF",
+ "XAU/ILS", "XAU/JPY", "XAU/MXN", "XAU/NOK", "XAU/NZD", "XAU/PLN", "XAU/RON", "XAU/SAR", "XAU/SEK",
+ "XAU/SGD", "XAU/THB", "XAU/TRY", "XAU/USD", "XAU/XAG", ...]
+```
+
+```elixir
+DukascopyEx.Instruments.commodities()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["BRENT.CMD/USD", "COCOA.CMD/USD", "COFFEE.CMD/USX", "COPPER.CMD/USD", "COTTON.CMD/USX",
+ "DIESEL.CMD/USD", "GAS.CMD/USD", "LIGHT.CMD/USD", "OJUICE.CMD/USX", "SOYBEAN.CMD/USX",
+ "SUGAR.CMD/USD", "XPD.CMD/USD", "XPT.CMD/USD"]
+```
+
+```elixir
+DukascopyEx.Instruments.agriculturals()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["COCOA.CMD/USD", "COFFEE.CMD/USX", "COTTON.CMD/USX", "OJUICE.CMD/USX", "SOYBEAN.CMD/USX",
+ "SUGAR.CMD/USD"]
+```
+
+## Stream API
+
+```elixir
+import Kino.Shorts
+
+# Stream raw ticks
+stream =
+  DukascopyEx.stream(
+    "XAU/USD",
+    :ticks,
+    from: ~D[2025-12-01],
+    to: ~D[2025-12-02],
+    volume_units: :units
+  )
+
+stream
+|> Enum.take(100)
+|> data_table(keys: ~w[time bid ask bid_volume ask_volume]a)
+```
+
+<!-- livebook:{"output":true} -->
+
+```text
+[%{time: ~U[2025-12-01 00:00:00.036Z], bid: 4221.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.215}, %{time: ~U[2025-12-01 00:00:00.087Z], bid: 4221.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.145}, %{time: ~U[2025-12-01 00:00:00.137Z], bid: 4221.555, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.115}, %{time: ~U[2025-12-01 00:00:00.541Z], bid: 4221.595, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.165}, %{time: ~U[2025-12-01 00:00:00.592Z], bid: 4221.925, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.495}, %{time: ~U[2025-12-01 00:00:00.693Z], bid: 4221.945, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.505}, %{time: ~U[2025-12-01 00:00:00.744Z], bid: 4221.985, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.555}, %{time: ~U[2025-12-01 00:00:00.795Z], bid: 4222.085, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.615}, %{time: ~U[2025-12-01 00:00:00.996Z], bid: 4222.105, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.645}, %{time: ~U[2025-12-01 00:00:01.098Z], bid: 4222.165, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.715}, %{time: ~U[2025-12-01 00:00:01.148Z], bid: 4222.155, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.675}, %{time: ~U[2025-12-01 00:00:01.400Z], bid: 4222.125, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.655}, %{time: ~U[2025-12-01 00:00:01.551Z], bid: 4222.145, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.685}, %{time: ~U[2025-12-01 00:00:01.602Z], bid: 4222.295, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.825}, %{time: ~U[2025-12-01 00:00:01.703Z], bid: 4222.275, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.805}, %{time: ~U[2025-12-01 00:00:02.004Z], bid: 4222.365, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.895}, %{time: ~U[2025-12-01 00:00:02.055Z], bid: 4222.385, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.925}, %{time: ~U[2025-12-01 00:00:02.156Z], bid: 4222.415, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.945}, %{time: ~U[2025-12-01 00:00:02.207Z], bid: 4222.645, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.185}, %{time: ~U[2025-12-01 00:00:02.308Z], bid: 4222.675, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.205}, %{time: ~U[2025-12-01 00:00:02.409Z], bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.145}, %{time: ~U[2025-12-01 00:00:02.560Z], bid: 4222.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.105}, %{time: ~U[2025-12-01 00:00:02.662Z], bid: 4222.545, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.075}, %{time: ~U[2025-12-01 00:00:02.812Z], bid: 4222.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.105}, %{time: ~U[2025-12-01 00:00:02.863Z], bid: 4222.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.195}, %{time: ~U[2025-12-01 00:00:02.914Z], bid: 4222.685, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.215}, %{time: ~U[2025-12-01 00:00:02.965Z], bid: 4222.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.195}, %{time: ~U[2025-12-01 00:00:03.016Z], bid: 4222.685, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.215}, %{time: ~U[2025-12-01 00:00:03.117Z], bid: 4222.665, bid_volume: 119.99999696854502, ask_volume: 220.00000171829015, ask: 4223.185}, %{time: ~U[2025-12-01 00:00:03.168Z], bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.145}, %{time: ~U[2025-12-01 00:00:03.219Z], bid: 4222.665, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.195}, %{time: ~U[2025-12-01 00:00:03.320Z], bid: 4222.635, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.175}, %{time: ~U[2025-12-01 00:00:03.370Z], bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.155}, %{time: ~U[2025-12-01 00:00:03.572Z], bid: 4222.635, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.175}, %{time: ~U[2025-12-01 00:00:03.673Z], bid: 4222.455, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.995}, %{time: ~U[2025-12-01 00:00:03.723Z], bid: 4222.415, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.975}, %{time: ~U[2025-12-01 00:00:03.774Z], bid: 4222.285, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.855}, %{time: ~U[2025-12-01 00:00:04.076Z], bid: 4222.315, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.885}, %{time: ~U[2025-12-01 00:00:04.177Z], bid: 4222.375, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.915}, %{time: ~U[2025-12-01 00:00:04.278Z], bid: 4222.185, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.715}, %{time: ~U[2025-12-01 00:00:04.329Z], bid: 4222.275, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.815}, %{time: ~U[2025-12-01 00:00:04.380Z], bid: 4222.225, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.755}, %{time: ~U[2025-12-01 00:00:04.481Z], bid: 4222.195, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.755}, %{time: ~U[2025-12-01 00:00:04.733Z], bid: 4222.225, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.795}, %{time: ~U[2025-12-01 00:00:04.784Z], bid: 4222.285, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.855}, %{time: ~U[2025-12-01 00:00:04.885Z], bid: 4222.355, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ...}, %{time: ~U[2025-12-01 00:00:04.987Z], bid: 4222.385, bid_volume: 119.99999696854502, ...}, %{time: ~U[2025-12-01 00:00:05.238Z], bid: 4222.405, ...}, %{time: ~U[2025-12-01 00:00:05.289Z], ...}, %{...}, ...]
+```
+
+```elixir
+import Kino.Shorts
+
+# Stream m5 bars
+stream =
+  DukascopyEx.stream(
+    "EUR/USD",
+    "m5",
+    # instead of from/true you can use a Date.Range
+    date_range: Date.range(~D[2025-12-01], ~D[2025-12-02]),
+    # you can also specify a timezone for your date_range
+    timezone: "Europe/Paris",
+    # market open is always UTC!
+    market_open: ~T[00:10:00]
+  )
+
+stream
+|> Enum.take(100)
+|> data_table(keys: ~w[time open high low close volume new_bar? new_market?]a)
+```
+
+<!-- livebook:{"output":true} -->
+
+```text
+[%{close: 1.15987, high: 1.16033, low: 1.15986, open: 1.16011, time: #DateTime<2025-12-01 01:00:00+01:00 CET Europe/Paris>, volume: 424.3499946594238, new_bar?: true, new_market?: false}, %{close: 1.15994, high: 1.16007, low: 1.15975, open: 1.15988, time: #DateTime<2025-12-01 01:05:00+01:00 CET Europe/Paris>, volume: 397.63000869750977, new_bar?: true, new_market?: false}, %{close: 1.16002, high: 1.16024, low: 1.15988, open: 1.15992, time: #DateTime<2025-12-01 01:10:00+01:00 CET Europe/Paris>, volume: 244.88999557495117, new_bar?: true, new_market?: true}, %{close: 1.15997, high: 1.1602, low: 1.15987, open: 1.16005, time: #DateTime<2025-12-01 01:15:00+01:00 CET Europe/Paris>, volume: 358.8899917602539, new_bar?: true, new_market?: false}, %{close: 1.1599, high: 1.16016, low: 1.1598, open: 1.15996, time: #DateTime<2025-12-01 01:20:00+01:00 CET Europe/Paris>, volume: 260.9700012207031, new_bar?: true, new_market?: false}, %{close: 1.16014, high: 1.16019, low: 1.15983, open: 1.15991, time: #DateTime<2025-12-01 01:25:00+01:00 CET Europe/Paris>, volume: 278.3299980163574, new_bar?: true, new_market?: false}, %{close: 1.16025, high: 1.16037, low: 1.16015, open: 1.16015, time: #DateTime<2025-12-01 01:30:00+01:00 CET Europe/Paris>, volume: 250.55999755859375, new_bar?: true, new_market?: false}, %{close: 1.16028, high: 1.1603, low: 1.16013, open: 1.16025, time: #DateTime<2025-12-01 01:35:00+01:00 CET Europe/Paris>, volume: 157.70999908447266, new_bar?: true, new_market?: false}, %{close: 1.16038, high: 1.1604, low: 1.16014, open: 1.16027, time: #DateTime<2025-12-01 01:40:00+01:00 CET Europe/Paris>, volume: 175.2000026702881, new_bar?: true, new_market?: false}, %{close: 1.16049, high: 1.16051, low: 1.16037, open: 1.16039, time: #DateTime<2025-12-01 01:45:00+01:00 CET Europe/Paris>, volume: 248.04000091552734, new_bar?: true, new_market?: false}, %{close: 1.16051, high: 1.1606, low: 1.1604, open: 1.1605, time: #DateTime<2025-12-01 01:50:00+01:00 CET Europe/Paris>, volume: 225.60999488830566, new_bar?: true, new_market?: false}, %{close: 1.16031, high: 1.1607, low: 1.16025, open: 1.16051, time: #DateTime<2025-12-01 01:55:00+01:00 CET Europe/Paris>, volume: 347.7100067138672, new_bar?: true, new_market?: false}, %{close: 1.16054, high: 1.16062, low: 1.16003, open: 1.1603, time: #DateTime<2025-12-01 02:00:00+01:00 CET Europe/Paris>, volume: 473.5299987792969, new_bar?: true, new_market?: false}, %{close: 1.16124, high: 1.16126, low: 1.16025, open: 1.16055, time: #DateTime<2025-12-01 02:05:00+01:00 CET Europe/Paris>, volume: 799.75, new_bar?: true, new_market?: false}, %{close: 1.1612, high: 1.16149, low: 1.16107, open: 1.16123, time: #DateTime<2025-12-01 02:10:00+01:00 CET Europe/Paris>, volume: 611.7899932861328, new_bar?: true, new_market?: false}, %{close: 1.16118, high: 1.16136, low: 1.16107, open: 1.16119, time: #DateTime<2025-12-01 02:15:00+01:00 CET Europe/Paris>, volume: 447.9000015258789, new_bar?: true, new_market?: false}, %{close: 1.16146, high: 1.16149, low: 1.16115, open: 1.16116, time: #DateTime<2025-12-01 02:20:00+01:00 CET Europe/Paris>, volume: 313.1100044250488, new_bar?: true, new_market?: false}, %{close: 1.16144, high: 1.16158, low: 1.16128, open: 1.16147, time: #DateTime<2025-12-01 02:25:00+01:00 CET Europe/Paris>, volume: 304.72999572753906, new_bar?: true, new_market?: false}, %{close: 1.16079, high: 1.16148, low: 1.16079, open: 1.16148, time: #DateTime<2025-12-01 02:30:00+01:00 CET Europe/Paris>, volume: 402.21999740600586, new_bar?: true, new_market?: false}, %{close: 1.16104, high: 1.16104, low: 1.16066, open: 1.1608, time: #DateTime<2025-12-01 02:35:00+01:00 CET Europe/Paris>, volume: 295.12999534606934, new_bar?: true, new_market?: false}, %{close: 1.1607, high: 1.16111, low: 1.16063, open: 1.16105, time: #DateTime<2025-12-01 02:40:00+01:00 CET Europe/Paris>, volume: 258.1500015258789, new_bar?: true, new_market?: false}, %{close: 1.16072, high: 1.16077, low: 1.16049, open: 1.16069, time: #DateTime<2025-12-01 02:45:00+01:00 CET Europe/Paris>, volume: 280.2199935913086, new_bar?: true, new_market?: false}, %{close: 1.16074, high: 1.16086, low: 1.16065, open: 1.1607, time: #DateTime<2025-12-01 02:50:00+01:00 CET Europe/Paris>, volume: 251.41000366210938, new_bar?: true, new_market?: false}, %{close: 1.1605, high: 1.16093, low: 1.16048, open: 1.16075, time: #DateTime<2025-12-01 02:55:00+01:00 CET Europe/Paris>, volume: 332.7899971008301, new_bar?: true, new_market?: false}, %{close: 1.16041, high: 1.16057, low: 1.16029, open: 1.16049, time: #DateTime<2025-12-01 03:00:00+01:00 CET Europe/Paris>, volume: 330.2900047302246, new_bar?: true, new_market?: false}, %{close: 1.16012, high: 1.16042, low: 1.16012, open: 1.16042, time: #DateTime<2025-12-01 03:05:00+01:00 CET Europe/Paris>, volume: 275.56999683380127, new_bar?: true, new_market?: false}, %{close: 1.16017, high: 1.16025, low: 1.15988, open: 1.16012, time: #DateTime<2025-12-01 03:10:00+01:00 CET Europe/Paris>, volume: 272.64999771118164, new_bar?: true, new_market?: false}, %{close: 1.15981, high: 1.1602, low: 1.15979, open: 1.16019, time: #DateTime<2025-12-01 03:15:00+01:00 CET Europe/Paris>, volume: 202.90999603271484, new_bar?: true, new_market?: false}, %{close: 1.15951, high: 1.15987, low: 1.15951, open: 1.15983, time: #DateTime<2025-12-01 03:20:00+01:00 CET Europe/Paris>, volume: 297.5799980163574, new_bar?: true, new_market?: false}, %{close: 1.15966, high: 1.15981, low: 1.15949, open: 1.15951, time: #DateTime<2025-12-01 03:25:00+01:00 CET Europe/Paris>, volume: 370.64999771118164, new_bar?: true, new_market?: false}, %{close: 1.1597, high: 1.15974, low: 1.15951, open: 1.15968, time: #DateTime<2025-12-01 03:30:00+01:00 CET Europe/Paris>, volume: 221.17000007629395, new_bar?: true, new_market?: false}, %{close: 1.15964, high: 1.15983, low: 1.15961, open: 1.15971, time: #DateTime<2025-12-01 03:35:00+01:00 CET Europe/Paris>, volume: 301.48999786376953, new_bar?: true, new_market?: false}, %{close: 1.1596, high: 1.15975, low: 1.15952, open: 1.15962, time: #DateTime<2025-12-01 03:40:00+01:00 CET Europe/Paris>, volume: 230.82999992370605, new_bar?: true, new_market?: false}, %{close: 1.1594, high: 1.15966, low: 1.15928, open: 1.1596, time: #DateTime<2025-12-01 03:45:00+01:00 CET Europe/Paris>, volume: 249.4800033569336, new_bar?: true, new_market?: false}, %{close: 1.15935, high: 1.15956, low: 1.15933, open: 1.15941, time: #DateTime<2025-12-01 03:50:00+01:00 CET Europe/Paris>, volume: 227.68999862670898, new_bar?: true, new_market?: false}, %{close: 1.15949, high: 1.15958, low: 1.15933, open: 1.15935, time: #DateTime<2025-12-01 03:55:00+01:00 CET Europe/Paris>, volume: 234.06999969482422, new_bar?: true, new_market?: false}, %{close: 1.15918, high: 1.15949, low: 1.15918, open: 1.15948, time: #DateTime<2025-12-01 04:00:00+01:00 CET Europe/Paris>, volume: 244.74000549316406, new_bar?: true, new_market?: false}, %{close: 1.15906, high: 1.15918, low: 1.15893, open: 1.15916, time: #DateTime<2025-12-01 04:05:00+01:00 CET Europe/Paris>, volume: 292.4300003051758, new_bar?: true, new_market?: false}, %{close: 1.15914, high: 1.15922, low: 1.15907, open: 1.15909, time: #DateTime<2025-12-01 04:10:00+01:00 CET Europe/Paris>, volume: 121.27000093460083, new_bar?: true, new_market?: false}, %{close: 1.15944, high: 1.15944, low: 1.15913, open: 1.15915, time: #DateTime<2025-12-01 04:15:00+01:00 CET Europe/Paris>, volume: 106.55999946594238, new_bar?: true, new_market?: false}, %{close: 1.15948, high: 1.1595, low: 1.15942, open: 1.15945, time: #DateTime<2025-12-01 04:20:00+01:00 CET Europe/Paris>, volume: 82.11999940872192, new_bar?: true, new_market?: false}, %{close: 1.15961, high: 1.15961, low: 1.15945, open: 1.15949, time: #DateTime<2025-12-01 04:25:00+01:00 CET Europe/Paris>, volume: 45.17999982833862, new_bar?: true, new_market?: false}, %{close: 1.15965, high: 1.15968, low: 1.15954, open: 1.15964, time: #DateTime<2025-12-01 04:30:00+01:00 CET Europe/Paris>, volume: 74.43000078201294, new_bar?: true, ...}, %{close: 1.15952, high: 1.15968, low: 1.15949, open: 1.15966, time: #DateTime<2025-12-01 04:35:00+01:00 CET Europe/Paris>, volume: 70.86000061035156, ...}, %{close: 1.15952, high: 1.15968, low: 1.15951, open: 1.15951, time: #DateTime<2025-12-01 04:40:00+01:00 CET Europe/Paris>, ...}, %{close: 1.15946, high: 1.15958, low: 1.15938, open: 1.15954, ...}, %{close: 1.15965, high: 1.15967, low: 1.15945, ...}, %{close: 1.15968, high: 1.15974, ...}, %{close: 1.15946, ...}, %{...}, ...]
+```
+
+```elixir
+import Kino.Shorts
+
+# Stream m5 bars
+stream =
+  DukascopyEx.stream(
+    "EUR/USD",
+    "m5",
+    date_range: Date.range(~D[2025-12-01], ~D[2025-12-02]),
+    # you can use a cache to avoid fetching the same data again an again
+    use_cache: true,
+    cache_folder_path: Path.join(__DIR__, ".dukascopy-cache")
+  )
+
+stream
+|> Enum.take(10)
+# |> data_table(keys: ~w[time open high low close volume new_bar? new_market?]a)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:00:00Z],
+    open: 1.16011,
+    high: 1.16033,
+    low: 1.15986,
+    close: 1.15987,
+    volume: 424.3499946594238,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:05:00Z],
+    open: 1.15988,
+    high: 1.16007,
+    low: 1.15975,
+    close: 1.15994,
+    volume: 397.63000869750977,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:10:00Z],
+    open: 1.15992,
+    high: 1.16024,
+    low: 1.15988,
+    close: 1.16002,
+    volume: 244.88999557495117,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:15:00Z],
+    open: 1.16005,
+    high: 1.1602,
+    low: 1.15987,
+    close: 1.15997,
+    volume: 358.8899917602539,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:20:00Z],
+    open: 1.15996,
+    high: 1.16016,
+    low: 1.1598,
+    close: 1.1599,
+    volume: 260.9700012207031,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:25:00Z],
+    open: 1.15991,
+    high: 1.16019,
+    low: 1.15983,
+    close: 1.16014,
+    volume: 278.3299980163574,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:30:00Z],
+    open: 1.16015,
+    high: 1.16037,
+    low: 1.16015,
+    close: 1.16025,
+    volume: 250.55999755859375,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:35:00Z],
+    open: 1.16025,
+    high: 1.1603,
+    low: 1.16013,
+    close: 1.16028,
+    volume: 157.70999908447266,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:40:00Z],
+    open: 1.16027,
+    high: 1.1604,
+    low: 1.16014,
+    close: 1.16038,
+    volume: 175.2000026702881,
+    new_bar?: true,
+    new_market?: false
+  },
+  %TheoryCraft.MarketSource.Bar{
+    time: ~U[2025-12-01 00:45:00Z],
+    open: 1.16039,
+    high: 1.16051,
+    low: 1.16037,
+    close: 1.16049,
+    volume: 248.04000091552734,
+    new_bar?: true,
+    new_market?: false
+  }
+]
+```
