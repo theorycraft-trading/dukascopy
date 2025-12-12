@@ -14,7 +14,7 @@ defmodule DukascopyEx.BarData do
   alias TheoryCraft.MarketSource.Bar
 
   @type timeframe :: :minute | :hour | :day
-  @type price_type :: :bid | :ask
+  @type price_type :: :bid | :ask | :mid
 
   @doc """
   Downloads and unpacks bar data for a specific instrument and period.
@@ -25,7 +25,8 @@ defmodule DukascopyEx.BarData do
     * `timeframe` - Bar timeframe: `:minute`, `:hour`, or `:day`
     * `date` - Date for `:minute` (day), `:hour` (any day in month), or `:day` (any day in year)
     * `opts` - Options keyword list:
-      * `:price_type` - `:bid` (default) or `:ask`
+      * `:price_type` - `:bid` (default), `:ask`, or `:mid`
+        Note: `:mid` fetches both bid and ask data and averages OHLC values (2x HTTP requests)
       * `:point_value` - Point value divisor for price conversion (default: auto-detected)
 
   ## Returns
@@ -36,16 +37,19 @@ defmodule DukascopyEx.BarData do
   ## Examples
 
       # Fetch minute bars for a specific day
-      {:ok, bars} = BarData.fetch("EUR/USD", :minute, ~D[2024-11-15])
+      iex> {:ok, bars} = BarData.fetch("EUR/USD", :minute, ~D[2024-11-15])
 
       # Fetch hourly bars for a specific month
-      {:ok, bars} = BarData.fetch("EUR/USD", :hour, ~D[2024-11-01])
+      iex> {:ok, bars} = BarData.fetch("EUR/USD", :hour, ~D[2024-11-01])
 
       # Fetch daily bars for a specific year
-      {:ok, bars} = BarData.fetch("EUR/USD", :day, ~D[2024-01-01])
+      iex> {:ok, bars} = BarData.fetch("EUR/USD", :day, ~D[2024-01-01])
 
       # Use ask prices instead of bid
-      {:ok, bars} = BarData.fetch("EUR/USD", :minute, ~D[2024-11-15], price_type: :ask)
+      iex> {:ok, bars} = BarData.fetch("EUR/USD", :minute, ~D[2024-11-15], price_type: :ask)
+
+      # Use mid prices (average of bid and ask)
+      iex> {:ok, bars} = BarData.fetch("EUR/USD", :minute, ~D[2024-11-15], price_type: :mid)
 
   """
   @spec fetch(String.t(), timeframe(), Date.t(), Keyword.t()) ::
@@ -54,11 +58,43 @@ defmodule DukascopyEx.BarData do
       when timeframe in [:minute, :hour, :day] do
     price_type = Keyword.get(opts, :price_type, :bid)
 
+    case price_type do
+      :mid -> fetch_mid(instrument, timeframe, date, opts)
+      _ -> fetch_single(instrument, timeframe, date, price_type, opts)
+    end
+  end
+
+  defp fetch_single(instrument, timeframe, date, price_type, opts) do
     with {:ok, point_value} <- Instruments.get_point_value(instrument, opts),
          {:ok, url} <- build_url(instrument, timeframe, date, price_type),
          {:ok, binary} <- Client.fetch(url, opts) do
       parse_bars(binary, timeframe, date, point_value)
     end
+  end
+
+  defp fetch_mid(instrument, timeframe, date, opts) do
+    with {:ok, point_value} <- Instruments.get_point_value(instrument, opts),
+         {:ok, bid_url} <- build_url(instrument, timeframe, date, :bid),
+         {:ok, ask_url} <- build_url(instrument, timeframe, date, :ask),
+         {:ok, bid_binary} <- Client.fetch(bid_url, opts),
+         {:ok, ask_binary} <- Client.fetch(ask_url, opts),
+         {:ok, bid_bars} <- parse_bars(bid_binary, timeframe, date, point_value),
+         {:ok, ask_bars} <- parse_bars(ask_binary, timeframe, date, point_value) do
+      {:ok, merge_bars_mid(bid_bars, ask_bars)}
+    end
+  end
+
+  defp merge_bars_mid(bid_bars, ask_bars) do
+    Enum.zip_with(bid_bars, ask_bars, fn bid, ask ->
+      %Bar{
+        time: bid.time,
+        open: (bid.open + ask.open) / 2,
+        high: (bid.high + ask.high) / 2,
+        low: (bid.low + ask.low) / 2,
+        close: (bid.close + ask.close) / 2,
+        volume: bid.volume + ask.volume
+      }
+    end)
   end
 
   @doc """
@@ -111,8 +147,8 @@ defmodule DukascopyEx.BarData do
   defp parse_bars(<<>>, _timeframe, _date, _point_value, acc), do: {:ok, Enum.reverse(acc)}
 
   defp parse_bars(
-         <<time_delta::32-big-signed, open::32-big-signed, high::32-big-signed,
-           low::32-big-signed, close::32-big-signed, volume::32-big-float, rest::binary>>,
+         <<time_delta::32-big-signed, open::32-big-signed, close::32-big-signed,
+           low::32-big-signed, high::32-big-signed, volume::32-big-float, rest::binary>>,
          timeframe,
          date,
          point_value,

@@ -31,6 +31,17 @@ defmodule DukascopyEx.TestFixtures do
     [plug: {Req.Test, name}, retry_log_level: false, retry_delay: 0]
   end
 
+  @doc """
+  Creates a Req.Test stub that always returns an error status code.
+  """
+  def stub_dukascopy_error(name \\ __MODULE__, status \\ 500) do
+    Req.Test.stub(name, fn conn ->
+      Plug.Conn.send_resp(conn, status, "Internal Server Error")
+    end)
+
+    [plug: {Req.Test, name}, retry_log_level: false, retry_delay: 0, max_retries: 0]
+  end
+
   ## Private functions
 
   defp path_to_fixture("/datafeed/" <> rest), do: rest

@@ -46,7 +46,10 @@ defmodule DukascopyEx.MixProject do
       {:tidewave, "~> 0.5", only: :dev},
       {:bandit, "~> 1.0", only: :dev},
       {:plug, "~> 1.16", only: [:dev, :test]},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+
+      ## Test
+      {:tzdata, "~> 1.1", only: :test}
     ]
   end
 end

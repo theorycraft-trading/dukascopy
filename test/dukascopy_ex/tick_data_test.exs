@@ -1,92 +1,81 @@
 defmodule DukascopyEx.TickDataTest do
   use ExUnit.Case, async: true
 
+  import DukascopyEx.TestAssertions
+
   alias DukascopyEx.TestFixtures
   alias DukascopyEx.TickData
-  alias TheoryCraft.MarketSource.Tick
 
   ## Tests
 
-  # Do not use doctests here as they would require network access
-  # doctest DukascopyEx.TickData
-
-  describe "fetch/4" do
+  describe "fetch/4 validation" do
     test "returns error for unknown instrument" do
       assert {:error, {:unknown_instrument, "UNKNOWN"}} =
                TickData.fetch("UNKNOWN", ~D[2024-11-15], 10)
     end
-
-    test "fetches and parses tick data" do
-      opts = TestFixtures.stub_dukascopy(:tick_data_fetch)
-
-      # 2019-02-04 -> EURUSD/2019/01/04 (month is 0-indexed)
-      assert {:ok, ticks} = TickData.fetch("EUR/USD", ~D[2019-02-04], 0, opts)
-      assert length(ticks) > 0
-
-      assert %Tick{
-               time: time,
-               ask: ask,
-               bid: bid,
-               ask_volume: ask_vol,
-               bid_volume: bid_vol
-             } = hd(ticks)
-
-      assert %DateTime{year: 2019, month: 2, day: 4, hour: 0} = time
-      assert is_float(ask)
-      assert is_float(bid)
-      assert is_float(ask_vol)
-      assert is_float(bid_vol)
-    end
-
-    test "returns empty list for 404 (no data)" do
-      opts = TestFixtures.stub_dukascopy(:tick_data_404)
-
-      # This path doesn't exist in fixtures
-      assert {:ok, []} = TickData.fetch("EUR/USD", ~D[2000-01-01], 0, opts)
-    end
-
-    test "fetches tick data for different hours" do
-      opts = TestFixtures.stub_dukascopy(:tick_data_hours)
-
-      # Hour 10
-      assert {:ok, ticks_h10} = TickData.fetch("EUR/USD", ~D[2019-02-04], 10, opts)
-      assert length(ticks_h10) > 0
-      assert %Tick{time: %DateTime{hour: 10}} = hd(ticks_h10)
-
-      # Hour 23
-      assert {:ok, ticks_h23} = TickData.fetch("EUR/USD", ~D[2019-02-04], 23, opts)
-      assert length(ticks_h23) > 0
-      assert %Tick{time: %DateTime{hour: 23}} = hd(ticks_h23)
-    end
   end
 
-  describe "tick parsing" do
-    test "parses all tick fields correctly" do
-      opts = TestFixtures.stub_dukascopy(:tick_parsing)
+  describe "fetch/4 tick parsing" do
+    test "parses first tick with exact values" do
+      opts = TestFixtures.stub_dukascopy(:tick_parsing_exact)
 
       {:ok, ticks} = TickData.fetch("EUR/USD", ~D[2019-02-04], 0, opts)
-      [tick | _] = ticks
+      [first | _] = ticks
 
-      # Verify all fields are present and have correct types
-      assert is_struct(tick, Tick)
-      assert is_struct(tick.time, DateTime)
-      assert is_float(tick.ask)
-      assert is_float(tick.bid)
-      assert is_float(tick.ask_volume)
-      assert is_float(tick.bid_volume)
+      # First tick from 00h_ticks.bi5: [994, 114545, 114543, 1, 2.059999942779541]
+      # Base time: 2019-02-04 00:00:00.000 UTC + 994ms
+      assert first.time == ~U[2019-02-04 00:00:00.994Z]
+      assert first.ask == 1.14545
+      assert first.bid == 1.14543
+      assert first.ask_volume == 1.0
+      assert_in_delta first.bid_volume, 2.06, 0.01
+    end
 
-      # Ask should be >= bid (typical for forex)
-      assert tick.ask >= tick.bid
+    test "parses multiple ticks in correct order" do
+      opts = TestFixtures.stub_dukascopy(:tick_parsing_order)
+
+      {:ok, ticks} = TickData.fetch("EUR/USD", ~D[2019-02-04], 0, opts)
+
+      # Hour 0 of 2019-02-04 contains 3733 ticks
+      assert length(ticks) == 3733
+      assert_chronological_order ticks
+
+      # Second tick: [1271, 114546, 114544, 1, 1]
+      t2 = Enum.at(ticks, 1)
+      assert t2.time == ~U[2019-02-04 00:00:01.271Z]
+      assert t2.ask == 1.14546
+      assert t2.bid == 1.14544
+      assert t2.ask_volume == 1.0
+      assert t2.bid_volume == 1.0
+
+      # Third tick: [1464, 114545, 114542, 1, 8.35]
+      t3 = Enum.at(ticks, 2)
+      assert t3.time == ~U[2019-02-04 00:00:01.464Z]
+      assert t3.ask == 1.14545
+      assert t3.bid == 1.14542
+      assert t3.ask_volume == 1.0
+      assert_in_delta t3.bid_volume, 8.35, 0.01
+    end
+
+    test "parses ticks for different hours" do
+      opts = TestFixtures.stub_dukascopy(:tick_hours)
+
+      # Hour 10
+      {:ok, ticks_h10} = TickData.fetch("EUR/USD", ~D[2019-02-04], 10, opts)
+      [first_h10 | _] = ticks_h10
+      assert first_h10.time.hour == 10
+
+      # Hour 23
+      {:ok, ticks_h23} = TickData.fetch("EUR/USD", ~D[2019-02-04], 23, opts)
+      [first_h23 | _] = ticks_h23
+      assert first_h23.time.hour == 23
     end
 
     test "respects point_value option" do
       opts = TestFixtures.stub_dukascopy(:tick_point_value)
 
-      # Default point_value for EUR/USD
-      {:ok, ticks_default} = TickData.fetch("EUR/USD", ~D[2019-02-04], 0, opts)
-
-      # Custom point_value
-      {:ok, ticks_custom} =
+      # With custom point_value = 10, raw value 114545 becomes 11454.5
+      {:ok, ticks} =
         TickData.fetch(
           "EUR/USD",
           ~D[2019-02-04],
@@ -94,12 +83,18 @@ defmodule DukascopyEx.TickDataTest do
           Keyword.merge(opts, point_value: 10)
         )
 
-      # With point_value 10, prices should be much larger
-      [t1 | _] = ticks_default
-      [t2 | _] = ticks_custom
+      [first | _] = ticks
 
-      # Default EUR/USD point_value is 100_000, so ratio should be 10_000
-      assert_in_delta t2.ask / t1.ask, 10_000, 1
+      assert first.ask == 11_454.5
+      assert first.bid == 11_454.3
+    end
+  end
+
+  describe "fetch/4 edge cases" do
+    test "returns empty list for 404 (no data)" do
+      opts = TestFixtures.stub_dukascopy(:tick_404)
+
+      assert {:ok, []} = TickData.fetch("EUR/USD", ~D[2000-01-01], 0, opts)
     end
   end
 
@@ -115,7 +110,7 @@ defmodule DukascopyEx.TickDataTest do
 
       ticks = TickData.fetch!("EUR/USD", ~D[2019-02-04], 0, opts)
       assert length(ticks) > 0
-      assert %Tick{} = hd(ticks)
+      assert hd(ticks).ask == 1.14545
     end
   end
 end

@@ -27,7 +27,7 @@ defmodule DukascopyEx.Options do
     * `:utc_offset` - Fixed UTC offset as Time (default: `~T[00:00:00]`)
     * `:timezone` - Timezone string with DST support (default: `"Etc/UTC"`)
     * `:volume_units` - `:millions` (default), `:thousands`, or `:units`
-    * `:ignore_flats` - Ignore zero-volume data (default: `true`)
+    * `:ignore_flats` - Ignore zero-volume bars (default: `true`). Does not apply to ticks.
     * `:batch_size` - Parallel requests per batch (default: `10`)
     * `:pause_between_batches_ms` - Pause between batches in ms (default: `1000`)
     * `:use_cache` - Enable file caching (default: `false`)
@@ -88,12 +88,110 @@ defmodule DukascopyEx.Options do
     ]
   end
 
-  # Private functions
+  @doc """
+  Returns the default options for DataFeed.
+
+  Inherits all options from `defaults/0` and adds:
+
+    * `:granularity` - `:ticks` (default)
+    * `:halt_on_error` - `true` (default) - whether to crash on fetch errors
+
+  """
+  @spec feed_defaults() :: Keyword.t()
+  def feed_defaults() do
+    Keyword.merge(defaults(), granularity: :ticks, halt_on_error: true)
+  end
+
+  @doc """
+  Validates options for DataFeed.stream/1.
+
+  Returns `{:ok, validated_opts}` on success or `{:error, reason}` on failure.
+
+  Inherits all options from `validate/3` and adds DataFeed-specific options.
+
+  ## Required options
+
+    * `:instrument` - Trading instrument (e.g., "EUR/USD")
+    * `:from` and `:to` - Date range (DateTime or Date). Half-open interval `[from, to)`
+    * OR `:date_range` - A `Date.Range` struct (inclusive)
+
+  ## DataFeed-specific options
+
+    * `:granularity` - `:ticks` (default), `:minute`, `:hour`, or `:day`
+    * `:halt_on_error` - Whether to crash on fetch errors (default: `true`)
+
+  ## Inherited options (from `defaults/0`)
+
+    * `:price_type` - `:bid` (default), `:ask`, or `:mid`
+      Note: `:mid` for bars fetches both bid and ask data (2x HTTP requests)
+    * `:batch_size` - Parallel requests per batch (default: `10`)
+    * `:pause_between_batches_ms` - Pause between batches in ms (default: `1000`)
+    * `:max_retries` - Number of retries per request (default: `3`)
+    * `:retry_delay` - Delay between retries (default: exponential backoff)
+    * `:retry_on_empty` - Retry on empty response (default: `false`)
+    * `:fail_after_retry_count` - Return error after all retries (default: `true`)
+    * `:use_cache` - Enable file caching (default: `false`)
+    * `:cache_folder_path` - Cache folder path (default: `".dukascopy-cache"`)
+    * `:ignore_flats` - Ignore zero-volume bars (default: `true`). Does not apply to ticks.
+    * `:market_open` - Market open time for alignment (default: `~T[00:00:00]`)
+    * `:weekly_open` - Week start day (default: `:monday`)
+
+  """
+  @spec validate_feed(Keyword.t()) :: {:ok, validated_opts()} | {:error, term()}
+  def validate_feed(opts) do
+    merged = Keyword.merge(feed_defaults(), opts)
+
+    with {:ok, instrument} <- extract_instrument(merged),
+         {:ok, date_range} <- extract_date_range(merged),
+         {:ok, granularity} <- extract_granularity(merged),
+         {:ok, price_type} <- extract_feed_price_type(merged),
+         {:ok, common_validated} <- validate_common_opts(merged) do
+      result =
+        Keyword.merge(common_validated,
+          instrument: instrument,
+          date_range: date_range,
+          granularity: granularity,
+          price_type: price_type
+        )
+
+      {:ok, result}
+    end
+  end
+
+  ## Private functions
+
+  defp extract_instrument(opts) do
+    case Keyword.get(opts, :instrument) do
+      nil -> {:error, :missing_instrument}
+      instrument -> validate_instrument_value(instrument)
+    end
+  end
+
+  defp validate_instrument_value(instrument) do
+    case Instruments.get_historical_filename(instrument) do
+      nil -> {:error, {:unknown_instrument, instrument}}
+      _ -> {:ok, instrument}
+    end
+  end
 
   defp validate_instrument(instrument) do
     case Instruments.get_historical_filename(instrument) do
       nil -> {:error, {:unknown_instrument, instrument}}
       _ -> :ok
+    end
+  end
+
+  defp extract_granularity(opts) do
+    case Keyword.get(opts, :granularity) do
+      value when value in Enums.granularity(:__keys__) -> {:ok, value}
+      value -> {:error, {:invalid_granularity, value}}
+    end
+  end
+
+  defp extract_feed_price_type(opts) do
+    case Keyword.get(opts, :price_type) do
+      value when value in [:bid, :ask, :mid] -> {:ok, value}
+      value -> {:error, {:invalid_price_type, value}}
     end
   end
 
@@ -107,9 +205,17 @@ defmodule DukascopyEx.Options do
   end
 
   defp extract_date_range(opts) do
+    date_range = Keyword.get(opts, :date_range)
+
+    case date_range do
+      {%DateTime{}, %DateTime{}} = range -> {:ok, range}
+      _ -> extract_date_range_from_opts(opts, date_range)
+    end
+  end
+
+  defp extract_date_range_from_opts(opts, date_range) do
     from = Keyword.get(opts, :from)
     to = Keyword.get(opts, :to)
-    date_range = Keyword.get(opts, :date_range)
 
     case {from, to, date_range} do
       {nil, nil, nil} ->
@@ -121,8 +227,11 @@ defmodule DukascopyEx.Options do
       {from, to, nil} when not is_nil(from) and not is_nil(to) ->
         {:ok, {normalize_datetime(from), normalize_datetime(to)}}
 
+      {_, _, %Date.Range{}} ->
+        {:error, :conflicting_date_options}
+
       {_, _, _} ->
-        {:error, :invalid_date_range}
+        {:error, :partial_date_range}
     end
   end
 
@@ -143,17 +252,29 @@ defmodule DukascopyEx.Options do
          {:ok, volume_units} <- extract_volume_units(merged),
          {:ok, utc_offset} <- extract_utc_offset(merged),
          {:ok, weekly_open} <- extract_weekly_open(merged),
-         {:ok, batch_size} <- extract_positive_integer(merged, :batch_size),
-         {:ok, pause_batches} <- extract_non_negative_integer(merged, :pause_between_batches_ms),
-         {:ok, max_retries} <- extract_non_negative_integer(merged, :max_retries),
-         {:ok, retry_delay} <- extract_retry_delay(merged) do
+         {:ok, common_validated} <- validate_common_opts(merged) do
       result =
         Keyword.merge(
-          merged,
+          common_validated,
           price_type: price_type,
           volume_units: volume_units,
           utc_offset: utc_offset,
-          weekly_open: weekly_open,
+          weekly_open: weekly_open
+        )
+
+      {:ok, result}
+    end
+  end
+
+  # Validates options common to both validate/3 and validate_feed/1
+  defp validate_common_opts(opts) do
+    with {:ok, batch_size} <- extract_positive_integer(opts, :batch_size),
+         {:ok, pause_batches} <- extract_non_negative_integer(opts, :pause_between_batches_ms),
+         {:ok, max_retries} <- extract_non_negative_integer(opts, :max_retries),
+         {:ok, retry_delay} <- extract_retry_delay(opts) do
+      result =
+        Keyword.merge(
+          opts,
           batch_size: batch_size,
           pause_between_batches_ms: pause_batches,
           max_retries: max_retries,
@@ -215,8 +336,10 @@ defmodule DukascopyEx.Options do
   end
 
   @error_messages %{
+    missing_instrument: "Missing instrument. Provide :instrument option",
     missing_date_range: "Missing date range. Provide :from and :to, or :date_range",
-    invalid_date_range: "Invalid date range. Use :from/:to OR :date_range, not both"
+    partial_date_range: "Partial date range. Provide both :from and :to",
+    conflicting_date_options: "Conflicting date options. Use :from/:to OR :date_range, not both"
   }
 
   @error_templates %{
@@ -224,6 +347,7 @@ defmodule DukascopyEx.Options do
     invalid_timeframe:
       {"Invalid timeframe: ~s. Use :ticks or a TheoryCraft timeframe string (e.g., \"m5\", \"h1\", \"D\")",
        []},
+    invalid_granularity: {"Invalid granularity: ~s. Use :ticks, :minute, :hour, or :day", []},
     invalid_price_type: {"Invalid price_type: ~s. Use :bid, :ask, or :mid", []},
     invalid_volume_units: {"Invalid volume_units: ~s. Use :millions, :thousands, or :units", []},
     invalid_utc_offset: {"Invalid utc_offset: ~s. Use a Time struct (e.g., ~T[02:30:00])", []},
