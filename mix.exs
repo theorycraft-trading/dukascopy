@@ -47,6 +47,7 @@ defmodule DukascopyEx.MixProject do
       {:bandit, "~> 1.0", only: :dev},
       {:plug, "~> 1.16", only: [:dev, :test]},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
 
       ## Test
       {:tzdata, "~> 1.1", only: :test}
