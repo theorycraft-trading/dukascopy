@@ -375,6 +375,4 @@ defmodule DukascopyEx.Options do
       nil -> "Error: #{inspect({type, key, value})}"
     end
   end
-
-  defp format_error(other), do: "Error: #{inspect(other)}"
 end

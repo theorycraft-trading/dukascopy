@@ -1,15 +1,16 @@
-defmodule DukascopyEx.UrlGenerator do
-  @moduledoc """
-  Generates Dukascopy API URLs for downloading market data.
+defmodule DukascopyEx.Helpers.UrlGenerator do
+  @moduledoc false
 
-  This module provides functions to generate URLs for different data types:
-
-    - Tick data (hourly files)
-    - Minute bars (daily files)
-    - Hourly bars (monthly files)
-    - Daily bars (yearly files)
-
-  """
+  #
+  # Generates Dukascopy API URLs for downloading market data.
+  #
+  # This module provides functions to generate URLs for different data types:
+  #
+  #   - Tick data (hourly files)
+  #   - Minute bars (daily files)
+  #   - Hourly bars (monthly files)
+  #   - Daily bars (yearly files)
+  #
 
   alias DukascopyEx.{Client, Enums, Instruments}
 

@@ -1,4 +1,4 @@
-defmodule DukascopyEx.TimeRange do
+defmodule DukascopyEx.Helpers.TimeRange do
   @moduledoc false
 
   #
