@@ -1,0 +1,22 @@
+{
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": false,
+    "files.eol": "\n",
+    "files.exclude": {
+        "**/.elixir_ls/": true,
+        "**/_build/": true,
+        "**/deps/": true,
+    },
+    "[elixir]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2,
+        "editor.wordBasedSuggestions": "off",
+        "editor.formatOnType": true,
+        "editor.detectIndentation": true,
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true
+    },
+    "elixirLS.suggestSpecs": false,
+    "elixirLS.dotFormatter": ".formatter.exs"
+}
