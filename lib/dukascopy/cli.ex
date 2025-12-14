@@ -123,6 +123,7 @@ defmodule Dukascopy.CLI do
     case opts.format do
       :csv -> write_csv_with_progress(file, stream, opts, has_progress)
       :json -> write_json_with_progress(file, stream, opts, has_progress)
+      :ndjson -> write_ndjson_with_progress(file, stream, opts, has_progress)
     end
 
     File.close(file)
@@ -148,6 +149,12 @@ defmodule Dukascopy.CLI do
     end)
 
     IO.puts(file, "\n]")
+  end
+
+  defp write_ndjson_with_progress(file, stream, opts, has_progress) do
+    stream
+    |> maybe_with_progress(opts, has_progress)
+    |> Enum.each(&IO.puts(file, Formatter.to_json(&1)))
   end
 
   defp maybe_with_progress(stream, opts, true) do

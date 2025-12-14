@@ -48,7 +48,7 @@ defmodule Dukascopy.CLI.Options do
       doc: "Include flat (zero-volume) bars"
     ],
     format: [
-      type: {:in, ["csv", "json"]},
+      type: {:in, ["csv", "json", "ndjson"]},
       default: "csv",
       doc: "Output format"
     ],
@@ -204,7 +204,7 @@ defmodule Dukascopy.CLI.Options do
       --flats             Include flat (zero-volume) bars [default: false]
 
     Output options:
-      -f, --format        Output format: csv, json [default: csv]
+      -f, --format        Output format: csv, json, ndjson [default: csv]
       -o, --output        Output directory [default: ./download]
       --filename          Custom filename (without extension)
 

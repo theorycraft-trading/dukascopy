@@ -61,11 +61,14 @@ defmodule Dukascopy.CLI.Formatter do
 
   def full_file_path(opts) do
     filename = generate_filename(opts)
-    extension = to_string(opts.format)
+    extension = format_extension(opts.format)
     Path.join(opts.output, "#{filename}.#{extension}")
   end
 
   ## Private functions
+
+  defp format_extension(:ndjson), do: "ndjson"
+  defp format_extension(format), do: to_string(format)
 
   defp generate_filename(opts) do
     case opts.filename do
