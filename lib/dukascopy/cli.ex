@@ -59,6 +59,8 @@ defmodule Dukascopy.CLI do
     has_progress =
       case Owl.LiveScreen.start_link([]) do
         {:ok, _} ->
+          :ok = setup_logger_for_owl()
+
           Owl.ProgressBar.start(
             id: :download,
             label: "Downloading",
@@ -174,4 +176,14 @@ defmodule Dukascopy.CLI do
   end
 
   defp maybe_with_progress(stream, _opts, false), do: stream
+
+  defp setup_logger_for_owl() do
+    :ok = :logger.remove_handler(:default)
+
+    :ok =
+      :logger.add_handler(:default, :logger_std_h, %{
+        config: %{type: {:device, Owl.LiveScreen}},
+        formatter: Logger.Formatter.new()
+      })
+  end
 end
