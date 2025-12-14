@@ -173,7 +173,8 @@ defmodule DukascopyEx.DataFeedTest do
           to: ~D[2019-02-28],
           granularity: :hour,
           batch_size: 1,
-          pause_between_batches_ms: 0
+          pause_between_batches_ms: 0,
+          ignore_flats: false
         )
 
       {:ok, stream} = DataFeed.stream(opts)
@@ -204,7 +205,8 @@ defmodule DukascopyEx.DataFeedTest do
           to: ~D[2019-01-31],
           granularity: :day,
           batch_size: 1,
-          pause_between_batches_ms: 0
+          pause_between_batches_ms: 0,
+          ignore_flats: false
         )
 
       {:ok, stream} = DataFeed.stream(opts)
@@ -459,6 +461,108 @@ defmodule DukascopyEx.DataFeedTest do
       # Should fetch daily file, not hourly files
       assert length(paths) == 1
       assert Enum.all?(paths, &String.contains?(&1, "candles_day_1"))
+    end
+  end
+
+  ## Filter tests
+
+  describe "stream/1 with ignore_flats option" do
+    test "filters zero-volume bars when true (default)" do
+      stub_opts = TestFixtures.stub_dukascopy(:filter_ignore_flats)
+
+      opts =
+        Keyword.merge(stub_opts,
+          instrument: "EUR/USD",
+          from: ~D[2020-05-01],
+          to: ~D[2020-05-02],
+          granularity: :minute
+        )
+
+      {:ok, stream} = DataFeed.stream(opts)
+
+      assert Enum.all?(stream, &(&1.volume > 0))
+    end
+
+    test "keeps zero-volume bars when false" do
+      stub_opts = TestFixtures.stub_dukascopy(:filter_ignore_flats)
+
+      opts =
+        Keyword.merge(stub_opts,
+          instrument: "EUR/USD",
+          from: ~D[2020-05-01],
+          to: ~D[2020-05-02],
+          granularity: :minute,
+          ignore_flats: false
+        )
+
+      {:ok, stream} = DataFeed.stream(opts)
+
+      assert Enum.count(stream, &(&1.volume == 0.0)) > 0
+    end
+  end
+
+  describe "stream/1 with volume_units option" do
+    test "converts volume correctly for each unit type" do
+      stub_opts = TestFixtures.stub_dukascopy(:filter_volume_units)
+
+      base_opts =
+        Keyword.merge(stub_opts,
+          instrument: "EUR/USD",
+          from: ~U[2019-02-04 00:00:00Z],
+          to: ~U[2019-02-04 00:01:00Z]
+        )
+
+      {:ok, stream_millions} = DataFeed.stream(base_opts)
+      {:ok, stream_thousands} = DataFeed.stream(Keyword.put(base_opts, :volume_units, :thousands))
+      {:ok, stream_units} = DataFeed.stream(Keyword.put(base_opts, :volume_units, :units))
+
+      [stream_millions, stream_thousands, stream_units]
+      |> Enum.zip()
+      |> Enum.each(fn {m, t, u} ->
+        assert t.bid_volume == m.bid_volume * 1_000
+        assert u.bid_volume == m.bid_volume * 1_000_000
+      end)
+    end
+  end
+
+  describe "stream/1 with timezone option" do
+    test "shifts time to specified timezone" do
+      stub_opts = TestFixtures.stub_dukascopy(:filter_timezone)
+
+      opts =
+        Keyword.merge(stub_opts,
+          instrument: "EUR/USD",
+          from: ~U[2019-02-04 00:00:00Z],
+          to: ~U[2019-02-04 00:01:00Z],
+          timezone: "America/New_York"
+        )
+
+      {:ok, stream} = DataFeed.stream(opts)
+      [tick | _] = Enum.take(stream, 1)
+
+      # 2019-02-04 00:00:00.994 UTC = 2019-02-03 19:00:00.994 EST (UTC-5)
+      expected = DateTime.new!(~D[2019-02-03], ~T[19:00:00.994], "America/New_York")
+      assert tick.time == expected
+    end
+  end
+
+  describe "stream/1 with utc_offset option" do
+    test "adds fixed offset to time" do
+      stub_opts = TestFixtures.stub_dukascopy(:filter_utc_offset)
+
+      opts =
+        Keyword.merge(stub_opts,
+          instrument: "EUR/USD",
+          from: ~U[2019-02-04 00:00:00Z],
+          to: ~U[2019-02-04 00:01:00Z],
+          utc_offset: ~T[02:00:00]
+        )
+
+      {:ok, stream} = DataFeed.stream(opts)
+      [tick | _] = Enum.take(stream, 1)
+
+      # 2019-02-04 00:00:00.994 UTC + 2 hours = 2019-02-04 02:00:00.994 UTC
+      assert tick.time == ~U[2019-02-04 02:00:00.994Z]
     end
   end
 end

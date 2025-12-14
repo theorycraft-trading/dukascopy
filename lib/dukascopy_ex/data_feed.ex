@@ -55,6 +55,9 @@ defmodule DukascopyEx.DataFeed do
     * `:use_cache` - Enable file caching (default: `false`)
     * `:cache_folder_path` - Cache folder path (default: `".dukascopy-cache"`)
     * `:ignore_flats` - Ignore zero-volume bars (default: `true`). Does not apply to ticks.
+    * `:volume_units` - Volume unit: `:millions` (default), `:thousands`, or `:units`
+    * `:timezone` - Timezone string for time adjustment (default: `"Etc/UTC"`)
+    * `:utc_offset` - Fixed UTC offset as Time (default: `~T[00:00:00]`)
     * `:market_open` - Market open time for alignment (default: `~T[00:00:00]`)
     * `:weekly_open` - Week start day (default: `:monday`)
 
@@ -66,6 +69,7 @@ defmodule DukascopyEx.DataFeed do
 
   alias DukascopyEx.{BarData, Options, TickData}
   alias DukascopyEx.Helpers.PeriodGenerator
+  alias TheoryCraft.MarketSource.{Bar, Tick}
 
   ## Public API
 
@@ -78,7 +82,7 @@ defmodule DukascopyEx.DataFeed do
           granularity -> build_bar_stream(granularity, validated)
         end
 
-      {:ok, stream}
+      {:ok, apply_filters(stream, validated)}
     end
   end
 
@@ -168,6 +172,91 @@ defmodule DukascopyEx.DataFeed do
     case data do
       %{time: time} -> DateTime.compare(time, from) != :lt and DateTime.compare(time, to) == :lt
       _ -> true
+    end
+  end
+
+  ## Private functions - Filters
+
+  defp apply_filters(stream, opts) do
+    stream
+    |> maybe_filter_flats(opts)
+    |> maybe_convert_volume(opts)
+    |> maybe_apply_time_adjustments(opts)
+  end
+
+  # Note: ignore_flats only applies to bars, not ticks
+  defp maybe_filter_flats(stream, opts) do
+    if Keyword.fetch!(opts, :ignore_flats) do
+      Stream.reject(stream, fn
+        %Tick{} -> false
+        %Bar{volume: v} -> (v || 0) == 0
+      end)
+    else
+      stream
+    end
+  end
+
+  defp maybe_convert_volume(stream, opts) do
+    case Keyword.fetch!(opts, :volume_units) do
+      :millions -> stream
+      :thousands -> Stream.map(stream, &multiply_volume(&1, 1_000))
+      :units -> Stream.map(stream, &multiply_volume(&1, 1_000_000))
+    end
+  end
+
+  defp multiply_volume(data, factor) do
+    case data do
+      %Tick{} ->
+        %Tick{
+          data
+          | bid_volume: data.bid_volume && data.bid_volume * factor,
+            ask_volume: data.ask_volume && data.ask_volume * factor
+        }
+
+      %Bar{} ->
+        %Bar{data | volume: data.volume && data.volume * factor}
+    end
+  end
+
+  defp maybe_apply_time_adjustments(stream, opts) do
+    timezone = Keyword.fetch!(opts, :timezone)
+    utc_offset = Keyword.fetch!(opts, :utc_offset)
+
+    if timezone == "Etc/UTC" and utc_offset == ~T[00:00:00] do
+      stream
+    else
+      Stream.map(stream, &apply_time_adjustment(&1, timezone, utc_offset))
+    end
+  end
+
+  defp apply_time_adjustment(%_struct{time: time} = tick_or_bar, timezone, utc_offset) do
+    ajusted_time =
+      time
+      |> maybe_shift_timezone(timezone)
+      |> maybe_add_offset(utc_offset)
+
+    %{tick_or_bar | time: ajusted_time}
+  end
+
+  defp maybe_shift_timezone(dt, tz) do
+    case DateTime.shift_zone(dt, tz) do
+      {:ok, shifted} ->
+        shifted
+
+      {:error, reason} ->
+        Logger.error("Failed to shift timezone to #{tz}: #{inspect(reason)}")
+        dt
+    end
+  end
+
+  defp maybe_add_offset(dt, offset) do
+    case offset do
+      ~T[00:00:00] ->
+        dt
+
+      _ ->
+        seconds = Time.diff(offset, ~T[00:00:00])
+        DateTime.add(dt, seconds, :second)
     end
   end
 end

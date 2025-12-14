@@ -1,9 +1,16 @@
 defmodule DukascopyExTest do
-  use ExUnit.Case, async: true
+  # async: false required because MarketSource.stream() spawns GenStage processes
+  # that need access to Req.Test stubs via shared mode
+  use ExUnit.Case, async: false
 
   import DukascopyEx.TestAssertions
 
   alias DukascopyEx.TestFixtures
+
+  setup do
+    Req.Test.set_req_test_to_shared()
+    :ok
+  end
 
   ## Validation tests
 
