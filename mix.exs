@@ -5,14 +5,24 @@ defmodule Dukascopy.MixProject do
     [
       app: :dukascopy,
       version: "0.1.0",
-      elixir: "~> 1.17",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       preferred_cli_env: [ci: :test],
       aliases: aliases(),
       elixirc_options: [warnings_as_errors: true],
-      dialyzer: [plt_add_apps: [:mix]]
+      dialyzer: [plt_add_apps: [:mix]],
+      escript: escript()
+    ]
+  end
+
+  defp escript() do
+    [
+      main_module: Dukascopy.CLI,
+      app: nil,
+      name: "dukascopy",
+      include_priv_for: [:lzma]
     ]
   end
 
@@ -42,6 +52,8 @@ defmodule Dukascopy.MixProject do
       {:req, "~> 0.5"},
       {:lzma, "~> 0.1"},
       {:simple_enum, "~> 0.1"},
+      {:nimble_options, "~> 1.1"},
+      {:owl, "~> 0.13"},
 
       ## Dev/Test
       {:tidewave, "~> 0.5", only: :dev},

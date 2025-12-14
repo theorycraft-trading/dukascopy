@@ -24,3 +24,6 @@ dukascopy-*.tar
 
 # Dev
 /.claude
+
+# escript build files
+/dukascopy
