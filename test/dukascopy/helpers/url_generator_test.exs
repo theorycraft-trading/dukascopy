@@ -1,7 +1,7 @@
-defmodule DukascopyEx.Helpers.UrlGeneratorTest do
+defmodule Dukascopy.Helpers.UrlGeneratorTest do
   use ExUnit.Case, async: true
 
-  alias DukascopyEx.Helpers.UrlGenerator
+  alias Dukascopy.Helpers.UrlGenerator
 
   ## Tick URL tests
 

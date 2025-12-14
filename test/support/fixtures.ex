@@ -1,4 +1,4 @@
-defmodule DukascopyEx.TestFixtures do
+defmodule Dukascopy.TestFixtures do
   @moduledoc false
 
   @fixtures_path "test/fixtures"

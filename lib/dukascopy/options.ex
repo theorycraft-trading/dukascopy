@@ -1,11 +1,11 @@
-defmodule DukascopyEx.Options do
+defmodule Dukascopy.Options do
   @moduledoc false
 
-  # Validates and normalizes options for `DukascopyEx.stream/3`.
+  # Validates and normalizes options for `Dukascopy.stream/3`.
 
-  require DukascopyEx.Enums, as: Enums
+  require Dukascopy.Enums, as: Enums
 
-  alias DukascopyEx.Instruments
+  alias Dukascopy.Instruments
   alias TheoryCraft.TimeFrame
 
   @type validated_opts :: Keyword.t()
@@ -41,7 +41,7 @@ defmodule DukascopyEx.Options do
     * `:weekly_open` - Week start day (default: `:monday`)
 
   """
-  @spec validate(String.t(), DukascopyEx.timeframe(), Keyword.t()) ::
+  @spec validate(String.t(), Dukascopy.timeframe(), Keyword.t()) ::
           {:ok, validated_opts()} | {:error, term()}
   def validate(instrument, timeframe, opts) do
     with :ok <- validate_instrument(instrument),
@@ -55,7 +55,7 @@ defmodule DukascopyEx.Options do
   @doc """
   Same as `validate/3` but raises on error.
   """
-  @spec validate!(String.t(), DukascopyEx.timeframe(), Keyword.t()) :: validated_opts()
+  @spec validate!(String.t(), Dukascopy.timeframe(), Keyword.t()) :: validated_opts()
   def validate!(instrument, timeframe, opts) do
     case validate(instrument, timeframe, opts) do
       {:ok, validated_opts} -> validated_opts

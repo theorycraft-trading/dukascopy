@@ -1,4 +1,4 @@
-defmodule DukascopyEx.Client do
+defmodule Dukascopy.Client do
   @moduledoc false
 
   # HTTP client for Dukascopy API using Req.

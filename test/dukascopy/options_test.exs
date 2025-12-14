@@ -1,7 +1,7 @@
-defmodule DukascopyEx.OptionsTest do
+defmodule Dukascopy.OptionsTest do
   use ExUnit.Case, async: true
 
-  alias DukascopyEx.Options
+  alias Dukascopy.Options
 
   ## Tests
 

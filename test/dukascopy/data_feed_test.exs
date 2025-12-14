@@ -1,10 +1,10 @@
-defmodule DukascopyEx.DataFeedTest do
+defmodule Dukascopy.DataFeedTest do
   use ExUnit.Case, async: true
 
-  import DukascopyEx.TestAssertions
+  import Dukascopy.TestAssertions
 
-  alias DukascopyEx.DataFeed
-  alias DukascopyEx.TestFixtures
+  alias Dukascopy.DataFeed
+  alias Dukascopy.TestFixtures
 
   ## Validation tests
 

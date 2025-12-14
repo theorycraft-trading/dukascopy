@@ -1,10 +1,10 @@
-defmodule DukascopyEx.BarDataTest do
+defmodule Dukascopy.BarDataTest do
   use ExUnit.Case, async: true
 
-  import DukascopyEx.TestAssertions
+  import Dukascopy.TestAssertions
 
-  alias DukascopyEx.BarData
-  alias DukascopyEx.TestFixtures
+  alias Dukascopy.BarData
+  alias Dukascopy.TestFixtures
 
   ## Tests
 

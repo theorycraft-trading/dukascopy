@@ -1,4 +1,4 @@
-defmodule DukascopyEx do
+defmodule Dukascopy do
   @moduledoc """
   Elixir client for downloading historical market data from Dukascopy Bank SA.
 
@@ -9,15 +9,15 @@ defmodule DukascopyEx do
   The main function is `stream/3` which returns a lazy stream of market data:
 
       # Stream raw ticks
-      iex> DukascopyEx.stream("EUR/USD", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+      iex> Dukascopy.stream("EUR/USD", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
       ...> |> Enum.take(100)
 
       # Stream 5-minute bars
-      iex> DukascopyEx.stream("EUR/USD", :m5, from: ~D[2024-01-01], to: ~D[2024-01-31])
+      iex> Dukascopy.stream("EUR/USD", :m5, from: ~D[2024-01-01], to: ~D[2024-01-31])
       ...> |> Enum.to_list()
 
       # Stream hourly bars with options
-      iex> DukascopyEx.stream("EUR/USD", :h1,
+      iex> Dukascopy.stream("EUR/USD", :h1,
       ...>   from: ~D[2024-01-01],
       ...>   to: ~D[2024-12-31],
       ...>   price_type: :mid,
@@ -39,7 +39,7 @@ defmodule DukascopyEx do
 
   """
 
-  alias DukascopyEx.{DataFeed, Options}
+  alias Dukascopy.{DataFeed, Options}
   alias TheoryCraft.{MarketSource, TimeFrame}
   alias TheoryCraft.MarketSource.MarketEvent
 
@@ -87,11 +87,11 @@ defmodule DukascopyEx do
   ## Examples
 
       # Raw ticks for a single day
-      iex> DukascopyEx.stream("EUR/USD", :ticks, from: ~D[2024-11-15], to: ~D[2024-11-16])
+      iex> Dukascopy.stream("EUR/USD", :ticks, from: ~D[2024-11-15], to: ~D[2024-11-16])
       ...> |> Enum.take(1000)
 
       # 5-minute bars with mid price
-      iex> DukascopyEx.stream("EUR/USD", "m5",
+      iex> Dukascopy.stream("EUR/USD", "m5",
       ...>   from: ~D[2024-01-01],
       ...>   to: ~D[2024-01-31],
       ...>   price_type: :mid
@@ -99,14 +99,14 @@ defmodule DukascopyEx do
       ...> |> Enum.to_list()
 
       # Daily bars with caching enabled
-      iex> DukascopyEx.stream("EUR/USD", "D",
+      iex> Dukascopy.stream("EUR/USD", "D",
       ...>   date_range: Date.range(~D[2020-01-01], ~D[2024-01-01]),
       ...>   use_cache: true
       ...> )
       ...> |> Enum.to_list()
 
       # Weekly bars with custom market open time
-      iex> DukascopyEx.stream("EUR/USD", "W",
+      iex> Dukascopy.stream("EUR/USD", "W",
       ...>   from: ~D[2024-01-01],
       ...>   to: ~D[2024-12-31],
       ...>   market_open: ~T[17:00:00],

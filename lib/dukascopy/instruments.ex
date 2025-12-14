@@ -1,4 +1,4 @@
-defmodule DukascopyEx.Instruments do
+defmodule Dukascopy.Instruments do
   @moduledoc """
   List of available trading instruments on Dukascopy.
 

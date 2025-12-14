@@ -1,4 +1,4 @@
-defmodule DukascopyEx.DataFeed do
+defmodule Dukascopy.DataFeed do
   @moduledoc """
   DataFeed implementation for Dukascopy historical market data.
 
@@ -8,14 +8,14 @@ defmodule DukascopyEx.DataFeed do
   ## Usage
 
       # Stream raw ticks
-      iex> {:ok, stream} = DukascopyEx.DataFeed.stream(
+      iex> {:ok, stream} = Dukascopy.DataFeed.stream(
       ...>   instrument: "EUR/USD",
       ...>   from: ~U[2024-01-01 00:00:00Z],
       ...>   to: ~U[2024-01-02 00:00:00Z]
       ...> )
 
       # Stream minute bars
-      iex> {:ok, stream} = DukascopyEx.DataFeed.stream(
+      iex> {:ok, stream} = Dukascopy.DataFeed.stream(
       ...>   instrument: "EUR/USD",
       ...>   from: ~D[2024-01-01],
       ...>   to: ~D[2024-01-31],
@@ -67,8 +67,8 @@ defmodule DukascopyEx.DataFeed do
 
   require Logger
 
-  alias DukascopyEx.{BarData, Options, TickData}
-  alias DukascopyEx.Helpers.PeriodGenerator
+  alias Dukascopy.{BarData, Options, TickData}
+  alias Dukascopy.Helpers.PeriodGenerator
   alias TheoryCraft.MarketSource.{Bar, Tick}
 
   ## Public API
@@ -139,7 +139,7 @@ defmodule DukascopyEx.DataFeed do
         []
 
       batch ->
-        DukascopyEx.TaskSupervisor
+        Dukascopy.TaskSupervisor
         |> Task.Supervisor.async_stream_nolink(batch, fetch_fn,
           max_concurrency: batch_size,
           timeout: 60_000,

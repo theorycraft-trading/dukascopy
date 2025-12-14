@@ -1,9 +1,9 @@
-defmodule DukascopyEx.TickData do
+defmodule Dukascopy.TickData do
   @moduledoc """
   Downloads and parses Dukascopy tick data.
   """
 
-  alias DukascopyEx.{Client, Instruments}
+  alias Dukascopy.{Client, Instruments}
   alias TheoryCraft.MarketSource.Tick
 
   @doc """

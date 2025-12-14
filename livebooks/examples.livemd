@@ -1,12 +1,12 @@
 <!-- livebook:{"persist_outputs":true} -->
 
-# DukascopyEx
+# Dukascopy
 
 ```elixir
 Mix.install(
   [
     {:tzdata, "~> 1.1"},
-    {:dukascopy_ex, path: Path.join(__DIR__, "..")},
+    {:dukascopy, path: Path.join(__DIR__, "..")},
     {:theory_craft, github: "theorycraft-trading/theory_craft"},
     {:kino_theory_craft, github: "theorycraft-trading/kino_theory_craft"}
   ],
@@ -19,7 +19,7 @@ Application.put_env(:elixir, :time_zone_database, Tzdata.TimeZoneDatabase)
 ## Instruments
 
 ```elixir
-DukascopyEx.Instruments.all()
+Dukascopy.Instruments.all()
 ```
 
 <!-- livebook:{"output":true} -->
@@ -37,7 +37,7 @@ DukascopyEx.Instruments.all()
 ```
 
 ```elixir
-DukascopyEx.Instruments.forex()
+Dukascopy.Instruments.forex()
 ```
 
 <!-- livebook:{"output":true} -->
@@ -52,7 +52,7 @@ DukascopyEx.Instruments.forex()
 ```
 
 ```elixir
-DukascopyEx.Instruments.forex_majors()
+Dukascopy.Instruments.forex_majors()
 ```
 
 <!-- livebook:{"output":true} -->
@@ -62,7 +62,7 @@ DukascopyEx.Instruments.forex_majors()
 ```
 
 ```elixir
-DukascopyEx.Instruments.forex_crosses()
+Dukascopy.Instruments.forex_crosses()
 ```
 
 <!-- livebook:{"output":true} -->
@@ -77,7 +77,7 @@ DukascopyEx.Instruments.forex_crosses()
 ```
 
 ```elixir
-DukascopyEx.Instruments.stocks()
+Dukascopy.Instruments.stocks()
 ```
 
 <!-- livebook:{"output":true} -->
@@ -95,7 +95,7 @@ DukascopyEx.Instruments.stocks()
 ```
 
 ```elixir
-DukascopyEx.Instruments.metals()
+Dukascopy.Instruments.metals()
 ```
 
 <!-- livebook:{"output":true} -->
@@ -110,7 +110,7 @@ DukascopyEx.Instruments.metals()
 ```
 
 ```elixir
-DukascopyEx.Instruments.commodities()
+Dukascopy.Instruments.commodities()
 ```
 
 <!-- livebook:{"output":true} -->
@@ -122,7 +122,7 @@ DukascopyEx.Instruments.commodities()
 ```
 
 ```elixir
-DukascopyEx.Instruments.agriculturals()
+Dukascopy.Instruments.agriculturals()
 ```
 
 <!-- livebook:{"output":true} -->
@@ -139,7 +139,7 @@ import Kino.Shorts
 
 # Stream raw ticks
 stream =
-  DukascopyEx.stream(
+  Dukascopy.stream(
     "XAU/USD",
     :ticks,
     from: ~D[2025-12-01],
@@ -155,15 +155,15 @@ stream
 <!-- livebook:{"output":true} -->
 
 ```text
-[%{time: ~U[2025-12-01 00:00:00.036Z], bid: 4221.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.215}, %{time: ~U[2025-12-01 00:00:00.087Z], bid: 4221.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.145}, %{time: ~U[2025-12-01 00:00:00.137Z], bid: 4221.555, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.115}, %{time: ~U[2025-12-01 00:00:00.541Z], bid: 4221.595, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.165}, %{time: ~U[2025-12-01 00:00:00.592Z], bid: 4221.925, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.495}, %{time: ~U[2025-12-01 00:00:00.693Z], bid: 4221.945, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.505}, %{time: ~U[2025-12-01 00:00:00.744Z], bid: 4221.985, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.555}, %{time: ~U[2025-12-01 00:00:00.795Z], bid: 4222.085, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.615}, %{time: ~U[2025-12-01 00:00:00.996Z], bid: 4222.105, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.645}, %{time: ~U[2025-12-01 00:00:01.098Z], bid: 4222.165, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.715}, %{time: ~U[2025-12-01 00:00:01.148Z], bid: 4222.155, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.675}, %{time: ~U[2025-12-01 00:00:01.400Z], bid: 4222.125, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.655}, %{time: ~U[2025-12-01 00:00:01.551Z], bid: 4222.145, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.685}, %{time: ~U[2025-12-01 00:00:01.602Z], bid: 4222.295, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502, ask: 4222.825}, %{time: ~U[2025-12-01 00:00:01.703Z], bid: 4222.275, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.805}, %{time: ~U[2025-12-01 00:00:02.004Z], bid: 4222.365, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.895}, %{time: ~U[2025-12-01 00:00:02.055Z], bid: 4222.385, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.925}, %{time: ~U[2025-12-01 00:00:02.156Z], bid: 4222.415, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.945}, %{time: ~U[2025-12-01 00:00:02.207Z], bid: 4222.645, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.185}, %{time: ~U[2025-12-01 00:00:02.308Z], bid: 4222.675, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.205}, %{time: ~U[2025-12-01 00:00:02.409Z], bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.145}, %{time: ~U[2025-12-01 00:00:02.560Z], bid: 4222.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.105}, %{time: ~U[2025-12-01 00:00:02.662Z], bid: 4222.545, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.075}, %{time: ~U[2025-12-01 00:00:02.812Z], bid: 4222.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.105}, %{time: ~U[2025-12-01 00:00:02.863Z], bid: 4222.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.195}, %{time: ~U[2025-12-01 00:00:02.914Z], bid: 4222.685, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.215}, %{time: ~U[2025-12-01 00:00:02.965Z], bid: 4222.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.195}, %{time: ~U[2025-12-01 00:00:03.016Z], bid: 4222.685, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.215}, %{time: ~U[2025-12-01 00:00:03.117Z], bid: 4222.665, bid_volume: 119.99999696854502, ask_volume: 220.00000171829015, ask: 4223.185}, %{time: ~U[2025-12-01 00:00:03.168Z], bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.145}, %{time: ~U[2025-12-01 00:00:03.219Z], bid: 4222.665, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.195}, %{time: ~U[2025-12-01 00:00:03.320Z], bid: 4222.635, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.175}, %{time: ~U[2025-12-01 00:00:03.370Z], bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.155}, %{time: ~U[2025-12-01 00:00:03.572Z], bid: 4222.635, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4223.175}, %{time: ~U[2025-12-01 00:00:03.673Z], bid: 4222.455, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.995}, %{time: ~U[2025-12-01 00:00:03.723Z], bid: 4222.415, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.975}, %{time: ~U[2025-12-01 00:00:03.774Z], bid: 4222.285, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.855}, %{time: ~U[2025-12-01 00:00:04.076Z], bid: 4222.315, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.885}, %{time: ~U[2025-12-01 00:00:04.177Z], bid: 4222.375, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.915}, %{time: ~U[2025-12-01 00:00:04.278Z], bid: 4222.185, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.715}, %{time: ~U[2025-12-01 00:00:04.329Z], bid: 4222.275, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.815}, %{time: ~U[2025-12-01 00:00:04.380Z], bid: 4222.225, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.755}, %{time: ~U[2025-12-01 00:00:04.481Z], bid: 4222.195, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.755}, %{time: ~U[2025-12-01 00:00:04.733Z], bid: 4222.225, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.795}, %{time: ~U[2025-12-01 00:00:04.784Z], bid: 4222.285, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ask: 4222.855}, %{time: ~U[2025-12-01 00:00:04.885Z], bid: 4222.355, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502, ...}, %{time: ~U[2025-12-01 00:00:04.987Z], bid: 4222.385, bid_volume: 119.99999696854502, ...}, %{time: ~U[2025-12-01 00:00:05.238Z], bid: 4222.405, ...}, %{time: ~U[2025-12-01 00:00:05.289Z], ...}, %{...}, ...]
+[%{time: ~U[2025-12-01 00:00:00.036Z], ask: 4222.215, bid: 4221.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:00.087Z], ask: 4222.145, bid: 4221.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:00.137Z], ask: 4222.115, bid: 4221.555, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:00.541Z], ask: 4222.165, bid: 4221.595, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:00.592Z], ask: 4222.495, bid: 4221.925, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:00.693Z], ask: 4222.505, bid: 4221.945, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:00.744Z], ask: 4222.555, bid: 4221.985, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:00.795Z], ask: 4222.615, bid: 4222.085, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:00.996Z], ask: 4222.645, bid: 4222.105, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:01.098Z], ask: 4222.715, bid: 4222.165, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:01.148Z], ask: 4222.675, bid: 4222.155, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:01.400Z], ask: 4222.655, bid: 4222.125, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:01.551Z], ask: 4222.685, bid: 4222.145, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:01.602Z], ask: 4222.825, bid: 4222.295, bid_volume: 90.00000136438757, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:01.703Z], ask: 4222.805, bid: 4222.275, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.004Z], ask: 4222.895, bid: 4222.365, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.055Z], ask: 4222.925, bid: 4222.385, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.156Z], ask: 4222.945, bid: 4222.415, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.207Z], ask: 4223.185, bid: 4222.645, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.308Z], ask: 4223.205, bid: 4222.675, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.409Z], ask: 4223.145, bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.560Z], ask: 4223.105, bid: 4222.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.662Z], ask: 4223.075, bid: 4222.545, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.812Z], ask: 4223.105, bid: 4222.575, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.863Z], ask: 4223.195, bid: 4222.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.914Z], ask: 4223.215, bid: 4222.685, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:02.965Z], ask: 4223.195, bid: 4222.655, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.016Z], ask: 4223.215, bid: 4222.685, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.117Z], ask: 4223.185, bid: 4222.665, bid_volume: 119.99999696854502, ask_volume: 220.00000171829015}, %{time: ~U[2025-12-01 00:00:03.168Z], ask: 4223.145, bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.219Z], ask: 4223.195, bid: 4222.665, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.320Z], ask: 4223.175, bid: 4222.635, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.370Z], ask: 4223.155, bid: 4222.615, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.572Z], ask: 4223.175, bid: 4222.635, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.673Z], ask: 4222.995, bid: 4222.455, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.723Z], ask: 4222.975, bid: 4222.415, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:03.774Z], ask: 4222.855, bid: 4222.285, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.076Z], ask: 4222.885, bid: 4222.315, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.177Z], ask: 4222.915, bid: 4222.375, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.278Z], ask: 4222.715, bid: 4222.185, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.329Z], ask: 4222.815, bid: 4222.275, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.380Z], ask: 4222.755, bid: 4222.225, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.481Z], ask: 4222.755, bid: 4222.195, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.733Z], ask: 4222.795, bid: 4222.225, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.784Z], ask: 4222.855, bid: 4222.285, bid_volume: 119.99999696854502, ask_volume: 119.99999696854502}, %{time: ~U[2025-12-01 00:00:04.885Z], ask: 4222.895, bid: 4222.355, bid_volume: 119.99999696854502, ...}, %{time: ~U[2025-12-01 00:00:04.987Z], ask: 4222.925, bid: 4222.385, ...}, %{time: ~U[2025-12-01 00:00:05.238Z], ask: 4222.945, ...}, %{time: ~U[2025-12-01 00:00:05.289Z], ...}, %{...}, ...]
 ```
 
 ```elixir
 import Kino.Shorts
 
-# Stream m5 bars
+# Stream m5 bars (with custom timezone)
 stream =
-  DukascopyEx.stream(
+  Dukascopy.stream(
     "EUR/USD",
     "m5",
     # instead of from/true you can use a Date.Range
@@ -188,11 +188,11 @@ stream
 ```elixir
 import Kino.Shorts
 
-# Stream m5 bars
+# Stream h1 bars (with cache)
 stream =
-  DukascopyEx.stream(
+  Dukascopy.stream(
     "EUR/USD",
-    "m5",
+    "h1",
     date_range: Date.range(~D[2025-12-01], ~D[2025-12-02]),
     # you can use a cache to avoid fetching the same data again an again
     use_cache: true,
@@ -200,113 +200,1130 @@ stream =
   )
 
 stream
-|> Enum.take(10)
-# |> data_table(keys: ~w[time open high low close volume new_bar? new_market?]a)
+|> Enum.take(100)
+|> data_table(keys: ~w[time open high low close volume new_bar? new_market?]a)
+```
+
+<!-- livebook:{"output":true} -->
+
+```text
+[%{close: 1.16031, high: 1.1607, low: 1.15975, open: 1.16011, time: ~U[2025-12-01 00:00:00Z], volume: 3369.889991760254, new_bar?: true, new_market?: false}, %{close: 1.1605, high: 1.16158, low: 1.16003, open: 1.1603, time: ~U[2025-12-01 01:00:00Z], volume: 4770.729982376099, new_bar?: true, new_market?: false}, %{close: 1.15949, high: 1.16057, low: 1.15928, open: 1.16049, time: ~U[2025-12-01 02:00:00Z], volume: 3214.3799905776978, new_bar?: true, new_market?: false}, %{close: 1.15968, high: 1.15974, low: 1.15893, open: 1.15948, time: ~U[2025-12-01 03:00:00Z], volume: 1771.3699989318848, new_bar?: true, new_market?: false}, %{close: 1.15986, high: 1.16023, low: 1.15944, open: 1.15969, time: ~U[2025-12-01 04:00:00Z], volume: 1633.7699987888336, new_bar?: true, new_market?: false}, %{close: 1.15978, high: 1.16014, low: 1.15947, open: 1.15985, time: ~U[2025-12-01 05:00:00Z], volume: 1998.1499989032745, new_bar?: true, new_market?: false}, %{close: 1.15962, high: 1.15989, low: 1.15903, open: 1.15976, time: ~U[2025-12-01 06:00:00Z], volume: 2550.7699975967407, new_bar?: true, new_market?: false}, %{close: 1.16068, high: 1.16128, low: 1.15954, open: 1.15963, time: ~U[2025-12-01 07:00:00Z], volume: 4009.539981365204, new_bar?: true, new_market?: false}, %{close: 1.16132, high: 1.16218, low: 1.1604, open: 1.16067, time: ~U[2025-12-01 08:00:00Z], volume: 6499.950031280518, new_bar?: true, new_market?: false}, %{close: 1.16221, high: 1.16235, low: 1.16134, open: 1.16134, time: ~U[2025-12-01 09:00:00Z], volume: 6231.139999389648, new_bar?: true, new_market?: false}, %{close: 1.16274, high: 1.16285, low: 1.16188, open: 1.1622, time: ~U[2025-12-01 10:00:00Z], volume: 4202.189998626709, new_bar?: true, new_market?: false}, %{close: 1.16277, high: 1.16321, low: 1.16241, open: 1.16274, time: ~U[2025-12-01 11:00:00Z], volume: 5567.309978485107, new_bar?: true, new_market?: false}, %{close: 1.16487, high: 1.16488, low: 1.16266, open: 1.16276, time: ~U[2025-12-01 12:00:00Z], volume: 5557.629993438721, new_bar?: true, new_market?: false}, %{close: 1.16448, high: 1.16522, low: 1.16394, open: 1.16488, time: ~U[2025-12-01 13:00:00Z], volume: 6752.520015716553, new_bar?: true, new_market?: false}, %{close: 1.16319, high: 1.1645, low: 1.163, open: 1.16448, time: ~U[2025-12-01 14:00:00Z], volume: 7978.010036468506, new_bar?: true, new_market?: false}, %{close: 1.16287, high: 1.16406, low: 1.16226, open: 1.16326, time: ~U[2025-12-01 15:00:00Z], volume: 8907.95000076294, new_bar?: true, new_market?: false}, %{close: 1.16227, high: 1.16342, low: 1.16208, open: 1.16289, time: ~U[2025-12-01 16:00:00Z], volume: 5154.189979553223, new_bar?: true, new_market?: false}, %{close: 1.16206, high: 1.16287, low: 1.16178, open: 1.16226, time: ~U[2025-12-01 17:00:00Z], volume: 3226.0300073623657, new_bar?: true, new_market?: false}, %{close: 1.16119, high: 1.16234, low: 1.16116, open: 1.16206, time: ~U[2025-12-01 18:00:00Z], volume: 3386.039987564087, new_bar?: true, new_market?: false}, %{close: 1.16083, high: 1.16122, low: 1.1607, open: 1.16117, time: ~U[2025-12-01 19:00:00Z], volume: 2510.579999923706, new_bar?: true, new_market?: false}, %{close: 1.16092, high: 1.161, low: 1.16063, open: 1.16085, time: ~U[2025-12-01 20:00:00Z], volume: 1971.8099966049194, new_bar?: true, new_market?: false}, %{close: 1.16092, high: 1.16108, low: 1.16077, open: 1.16095, time: ~U[2025-12-01 21:00:00Z], volume: 927.3600082397461, new_bar?: true, new_market?: false}, %{close: 1.16079, high: 1.16089, low: 1.16066, open: 1.16089, time: ~U[2025-12-01 22:00:00Z], volume: 355.8299990296364, new_bar?: true, new_market?: false}, %{close: 1.16066, high: 1.16101, low: 1.16065, open: 1.16078, time: ~U[2025-12-01 23:00:00Z], volume: 484.82000863552094, new_bar?: true, new_market?: false}, %{close: 1.16056, high: 1.16093, low: 1.16037, open: 1.16069, time: ~U[2025-12-02 00:00:00Z], volume: 1617.6500017642975, new_bar?: true, new_market?: false}, %{close: 1.16091, high: 1.1611, low: 1.16037, open: 1.16055, time: ~U[2025-12-02 01:00:00Z], volume: 2243.970009803772, new_bar?: true, new_market?: false}, %{close: 1.16117, high: 1.1612, low: 1.16085, open: 1.16089, time: ~U[2025-12-02 02:00:00Z], volume: 1377.380004644394, new_bar?: true, new_market?: false}, %{close: 1.1612, high: 1.16127, low: 1.16087, open: 1.16118, time: ~U[2025-12-02 03:00:00Z], volume: 2180.7300024032593, new_bar?: true, new_market?: false}, %{close: 1.16089, high: 1.1614, low: 1.16088, open: 1.1612, time: ~U[2025-12-02 04:00:00Z], volume: 1301.0500009059906, new_bar?: true, new_market?: false}, %{close: 1.16098, high: 1.1611, low: 1.16069, open: 1.16088, time: ~U[2025-12-02 05:00:00Z], volume: 1249.83000934124, new_bar?: true, new_market?: false}, %{close: 1.16094, high: 1.16109, low: 1.16047, open: 1.16099, time: ~U[2025-12-02 06:00:00Z], volume: 1671.920003414154, new_bar?: true, new_market?: false}, %{close: 1.16125, high: 1.16162, low: 1.16085, open: 1.16094, time: ~U[2025-12-02 07:00:00Z], volume: 3629.8199825286865, new_bar?: true, new_market?: false}, %{close: 1.16104, high: 1.16161, low: 1.16089, open: 1.16125, time: ~U[2025-12-02 08:00:00Z], volume: 3792.000015258789, new_bar?: true, new_market?: false}, %{close: 1.16098, high: 1.1614, low: 1.16024, open: 1.16105, time: ~U[2025-12-02 09:00:00Z], volume: 4751.3000230789185, new_bar?: true, new_market?: false}, %{close: 1.16065, high: 1.16121, low: 1.15983, open: 1.16099, time: ~U[2025-12-02 10:00:00Z], volume: 3783.2800102233887, new_bar?: true, new_market?: false}, %{close: 1.16116, high: 1.16128, low: 1.16034, open: 1.16065, time: ~U[2025-12-02 11:00:00Z], volume: 2905.060000896454, new_bar?: true, new_market?: false}, %{close: 1.16176, high: 1.16193, low: 1.16072, open: 1.16117, time: ~U[2025-12-02 12:00:00Z], volume: 3285.419984817505, new_bar?: true, new_market?: false}, %{close: 1.16174, high: 1.16194, low: 1.1611, open: 1.16177, time: ~U[2025-12-02 13:00:00Z], volume: 3264.290008544922, new_bar?: true, new_market?: false}, %{close: 1.16177, high: 1.1623, low: 1.16131, open: 1.16175, time: ~U[2025-12-02 14:00:00Z], volume: 6104.789951324463, new_bar?: true, new_market?: false}, %{close: 1.16061, high: 1.16185, low: 1.15932, open: 1.16178, time: ~U[2025-12-02 15:00:00Z], volume: 8719.37999343872, new_bar?: true, new_market?: false}, %{close: 1.15953, high: 1.16096, low: 1.1591, open: 1.16061, time: ~U[2025-12-02 16:00:00Z], volume: 6950.260021209717, new_bar?: true, new_market?: false}, %{close: 1.16071, high: 1.16078, low: 1.15928, open: 1.15952, time: ~U[2025-12-02 17:00:00Z], volume: 4033.2800216674805, new_bar?: true, new_market?: false}, %{close: 1.16087, high: 1.16131, low: 1.16056, open: 1.16071, time: ~U[2025-12-02 18:00:00Z], volume: 2401.5299921035767, new_bar?: true, ...}, %{close: 1.16206, high: 1.16248, low: 1.16086, open: 1.16088, time: ~U[2025-12-02 19:00:00Z], volume: 3078.0700030326843, ...}, %{close: 1.16243, high: 1.16258, low: 1.16196, open: 1.16204, time: ~U[2025-12-02 20:00:00Z], ...}, %{close: 1.16233, high: 1.16257, low: 1.1621, open: 1.16243, ...}, %{close: 1.16234, high: 1.16247, low: 1.16204, ...}, %{close: 1.1628, high: 1.1629, ...}]
+```
+
+```elixir
+alias TheoryCraft.MarketSource
+
+feed_options = [
+  instrument: "EUR/USD",
+  from: ~D[2025-12-01],
+  to: ~D[2025-12-02],
+  use_cache: true,
+  cache_folder_path: Path.join(__DIR__, ".dukascopy-cache")
+]
+
+%MarketSource{}
+|> MarketSource.add_data({Dukascopy.DataFeed, feed_options}, name: "data")
+|> MarketSource.resample("h1", bar_only: true, data: "data", name: "data_h1")
+|> MarketSource.stream()
+|> Enum.take(3)
+
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+
+22:49:44.554 [debug] DataFeedStage starting with feed_module=Dukascopy.DataFeed
+
+22:49:44.561 [debug] name=data, max_demand=1000
+
+22:49:44.555 [error] Writer crashed (:"Le canal de communication est sur le point d\x92être fermé.\r\n")
+
+22:49:44.561 [info] init got unexpected: {:io_request, #PID<0.92.0>, #Reference<0.2503223620.3746037763.248426>,
+ {:put_chars, :unicode,
+  "Failed to write log message to stdout, trying stderr\n"}}
+
+22:49:44.600 [debug] ProcessorStage starting with processor_module=TheoryCraft.MarketSource.ResampleProcessor
+
 ```
 
 <!-- livebook:{"output":true} -->
 
 ```
 [
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:00:00Z],
-    open: 1.16011,
-    high: 1.16033,
-    low: 1.15986,
-    close: 1.15987,
-    volume: 424.3499946594238,
-    new_bar?: true,
-    new_market?: false
+  %TheoryCraft.MarketSource.MarketEvent{
+    time: ~U[2025-12-01 00:00:00.404Z],
+    source: "data",
+    data: %{
+      "data" => %TheoryCraft.MarketSource.Tick{
+        time: ~U[2025-12-01 00:00:00.404Z],
+        ask: 1.16013,
+        bid: 1.16011,
+        ask_volume: 0.8999999761581421,
+        bid_volume: 0.8999999761581421
+      },
+      "data_h1" => %TheoryCraft.MarketSource.Bar{
+        time: ~U[2025-12-01 00:00:00.000Z],
+        open: 1.16012,
+        high: 1.16012,
+        low: 1.16012,
+        close: 1.16012,
+        volume: 1.7999999523162842,
+        new_bar?: true,
+        new_market?: false
+      }
+    }
   },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:05:00Z],
-    open: 1.15988,
-    high: 1.16007,
-    low: 1.15975,
-    close: 1.15994,
-    volume: 397.63000869750977,
-    new_bar?: true,
-    new_market?: false
+  %TheoryCraft.MarketSource.MarketEvent{
+    time: ~U[2025-12-01 00:00:00.508Z],
+    source: "data",
+    data: %{
+      "data" => %TheoryCraft.MarketSource.Tick{
+        time: ~U[2025-12-01 00:00:00.508Z],
+        ask: 1.16014,
+        bid: 1.16011,
+        ask_volume: 1.7999999523162842,
+        bid_volume: 0.8999999761581421
+      },
+      "data_h1" => %TheoryCraft.MarketSource.Bar{
+        time: ~U[2025-12-01 00:00:00.000Z],
+        open: 1.16012,
+        high: 1.1601249999999999,
+        low: 1.16012,
+        close: 1.1601249999999999,
+        volume: 4.4999998807907104,
+        new_bar?: false,
+        new_market?: false
+      }
+    }
   },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:10:00Z],
-    open: 1.15992,
-    high: 1.16024,
-    low: 1.15988,
-    close: 1.16002,
-    volume: 244.88999557495117,
-    new_bar?: true,
-    new_market?: false
-  },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:15:00Z],
-    open: 1.16005,
-    high: 1.1602,
-    low: 1.15987,
-    close: 1.15997,
-    volume: 358.8899917602539,
-    new_bar?: true,
-    new_market?: false
-  },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:20:00Z],
-    open: 1.15996,
-    high: 1.16016,
-    low: 1.1598,
-    close: 1.1599,
-    volume: 260.9700012207031,
-    new_bar?: true,
-    new_market?: false
-  },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:25:00Z],
-    open: 1.15991,
-    high: 1.16019,
-    low: 1.15983,
-    close: 1.16014,
-    volume: 278.3299980163574,
-    new_bar?: true,
-    new_market?: false
-  },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:30:00Z],
-    open: 1.16015,
-    high: 1.16037,
-    low: 1.16015,
-    close: 1.16025,
-    volume: 250.55999755859375,
-    new_bar?: true,
-    new_market?: false
-  },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:35:00Z],
-    open: 1.16025,
-    high: 1.1603,
-    low: 1.16013,
-    close: 1.16028,
-    volume: 157.70999908447266,
-    new_bar?: true,
-    new_market?: false
-  },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:40:00Z],
-    open: 1.16027,
-    high: 1.1604,
-    low: 1.16014,
-    close: 1.16038,
-    volume: 175.2000026702881,
-    new_bar?: true,
-    new_market?: false
-  },
-  %TheoryCraft.MarketSource.Bar{
-    time: ~U[2025-12-01 00:45:00Z],
-    open: 1.16039,
-    high: 1.16051,
-    low: 1.16037,
-    close: 1.16049,
-    volume: 248.04000091552734,
-    new_bar?: true,
-    new_market?: false
+  %TheoryCraft.MarketSource.MarketEvent{
+    time: ~U[2025-12-01 00:00:01.173Z],
+    source: "data",
+    data: %{
+      "data" => %TheoryCraft.MarketSource.Tick{
+        time: ~U[2025-12-01 00:00:01.173Z],
+        ask: 1.16014,
+        bid: 1.16009,
+        ask_volume: 0.8999999761581421,
+        bid_volume: 2.700000047683716
+      },
+      "data_h1" => %TheoryCraft.MarketSource.Bar{
+        time: ~U[2025-12-01 00:00:00.000Z],
+        open: 1.16012,
+        high: 1.1601249999999999,
+        low: 1.160115,
+        close: 1.160115,
+        volume: 8.099999904632568,
+        new_bar?: false,
+        new_market?: false
+      }
+    }
   }
 ]
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+...
+     ask: 1.16028,
+     bid: 1.16023,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 01:00:23.325Z],
+     ask: 1.16025,
+     bid: 1.16022,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 01:00:23.480Z],
+     ask: 1.16024,
+     bid: 1.16022,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 01:00:23.790Z],
+     ask: 1.16026,
+     bid: 1.16022,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 01:00:25.683Z],
+     ask: 1.16023,
+     bid: 1.16021,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 01:00:25.890Z],
+     ask: 1.16024,
+     bid: 1.16019,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 01:00:27.671Z],
+     ask: 1.16022,
+     bid: 1.16018,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 01:00:27.777Z],
+     ask: 1.1602,
+     bid: 1.16019,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 01:00:27.883Z],
+     ask: 1.16021,
+     b (truncated)
+
+22:49:44.951 [warning] ** Undefined handle_info in "GenStage.Streamer"
+** Unhandled message: {:down, {#Reference<0.2503223620.3746037762.194404>, 1}, :normal}
+** Stream started at:
+    (gen_stage 1.3.2) lib/gen_stage.ex:1706: anonymous fn/0 in GenStage.from_enumerable/2
+    (elixir 1.18.3) lib/keyword.ex:1420: Keyword.pop_lazy/3
+    (gen_stage 1.3.2) lib/gen_stage.ex:1705: GenStage.from_enumerable/2
+    (theory_craft 0.1.0) lib/theory_craft/market_source.ex:873: TheoryCraft.MarketSource.materialize_pipeline/1
+    (theory_craft 0.1.0) lib/theory_craft/market_source.ex:762: TheoryCraft.MarketSource.stream/1
+    (elixir 1.18.3) src/elixir.erl:386: :elixir.eval_external_handler/3
+    (stdlib 6.2.2) erl_eval.erl:919: :erl_eval.do_apply/7
+
+
+22:49:44.952 [warning] ** Undefined handle_info in "GenStage.Streamer"
+** Unhandled message: {{#Reference<0.2503223620.3746037762.194404>, 7},
+ [
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:00.053Z],
+     ask: 1.15966,
+     bid: 1.15963,
+     ask_volume: 2.700000047683716,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:00.159Z],
+     ask: 1.15966,
+     bid: 1.15964,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:00.265Z],
+     ask: 1.15967,
+     bid: 1.15966,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:00.370Z],
+     ask: 1.15971,
+     bid: 1.15968,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:00.425Z],
+     ask: 1.15971,
+     bid: 1.1597,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:00.530Z],
+     ask: 1.15973,
+     bid: 1.1597,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:00.637Z],
+     ask: 1.15973,
+     bid: 1.15971,
+     ask_volume: 2.9600000381469727,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:01.074Z],
+     ask: 1.15974,
+     bid: 1.15972,
+     ask_volume: 3.5999999046325684,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:01.182Z],
+     ask: 1.15976,
+     bid: 1.15974,
+     ask_volume: 4.760000228881836,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:01.288Z],
+     ask: 1.15976,
+     bid: 1.15972,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:01.805Z],
+     ask: 1.15974,
+     bid: 1.15972,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:02.118Z],
+     ask: 1.15975,
+     bid: 1.15973,
+     ask_volume: 3.5999999046325684,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:02.228Z],
+     ask: 1.15977,
+     bid: 1.15973,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:02.334Z],
+     ask: 1.15978,
+     bid: 1.15975,
+     ask_volume: 2.700000047683716,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:02.492Z],
+     ask: 1.15976,
+     bid: 1.15974,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:02.753Z],
+     ask: 1.15978,
+     bid: 1.15976,
+     ask_volume: 2.9600000381469727,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:02.859Z],
+     ask: 1.15979,
+     bid: 1.15976,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:02.966Z],
+     ask: 1.15981,
+     bid: 1.15978,
+     ask_volume: 2.700000047683716,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:03.329Z],
+     ask: 1.15983,
+     bid: 1.1598,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:03.434Z],
+     ask: 1.15984,
+     bid: 1.1598,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:03.539Z],
+     ask: 1.15985,
+     bid: 1.15981,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:03.748Z],
+     ask: 1.15986,
+     bid: 1.15982,
+     ask_volume: 2.059999942779541,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:04.212Z],
+     ask: 1.15987,
+     bid: 1.15985,
+     ask_volume: 8.359999656677246,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:04.317Z],
+     ask: 1.15986,
+     bid: 1.15983,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:07.335Z],
+     ask: 1.15987,
+     bid: 1.15985,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:08.406Z],
+     ask: 1.15987,
+     bid: 1.15983,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.9900000095367432
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:09.229Z],
+     ask: 1.15985,
+     bid: 1.15983,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:10.343Z],
+     ask: 1.15987,
+     bid: 1.15984,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:10.554Z],
+     ask: 1.15989,
+     bid: 1.15985,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:10.659Z],
+     ask: 1.15988,
+     bid: 1.15984,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:11.582Z],
+     ask: 1.15986,
+     bid: 1.15981,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 2.700000047683716
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:12.655Z],
+     ask: 1.15984,
+     bid: 1.15982,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:12.760Z],
+     ask: 1.15986,
+     bid: 1.15982,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:14.898Z],
+     ask: 1.15984,
+     bid: 1.15982,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:21.318Z],
+     ask: 1.15983,
+     bid: 1.15982,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:21.373Z],
+     ask: 1.15986,
+     bid: 1.15982,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:21.428Z],
+     ask: 1.15989,
+     bid: 1.15988,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:24.394Z],
+     ask: 1.1599,
+     bid: 1.15988,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 5.400000095367432
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:24.654Z],
+     ask: 1.15993,
+     bid: 1.15991,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:24.760Z],
+     ask: 1.15995,
+     bid: 1.15991,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:24.890Z],
+     ask: 1.15993,
+     bid: 1.1599,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 07:00:26.113Z],
+     ask: 1.15992,
+     bid: 1.15989,
+     a (truncated)
+
+22:49:45.084 [warning] ** Undefined handle_info in "GenStage.Streamer"
+** Unhandled message: {:down, {#Reference<0.2503223620.3746037762.194404>, 7}, :normal}
+** Stream started at:
+    (gen_stage 1.3.2) lib/gen_stage.ex:1706: anonymous fn/0 in GenStage.from_enumerable/2
+    (elixir 1.18.3) lib/keyword.ex:1420: Keyword.pop_lazy/3
+    (gen_stage 1.3.2) lib/gen_stage.ex:1705: GenStage.from_enumerable/2
+    (theory_craft 0.1.0) lib/theory_craft/market_source.ex:873: TheoryCraft.MarketSource.materialize_pipeline/1
+    (theory_craft 0.1.0) lib/theory_craft/market_source.ex:762: TheoryCraft.MarketSource.stream/1
+    (elixir 1.18.3) src/elixir.erl:386: :elixir.eval_external_handler/3
+    (stdlib 6.2.2) erl_eval.erl:919: :erl_eval.do_apply/7
+
+
+22:49:45.085 [warning] ** Undefined handle_info in "GenStage.Streamer"
+** Unhandled message: {{#Reference<0.2503223620.3746037762.194404>, 6},
+ [
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:00.062Z],
+     ask: 1.15979,
+     bid: 1.15976,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:05.243Z],
+     ask: 1.15981,
+     bid: 1.15978,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:08.076Z],
+     ask: 1.1598,
+     bid: 1.15977,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:09.964Z],
+     ask: 1.15981,
+     bid: 1.1598,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:10.326Z],
+     ask: 1.15982,
+     bid: 1.1598,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:12.887Z],
+     ask: 1.15983,
+     bid: 1.15981,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:12.942Z],
+     ask: 1.15986,
+     bid: 1.15983,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:13.047Z],
+     ask: 1.15988,
+     bid: 1.15986,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:13.154Z],
+     ask: 1.15988,
+     bid: 1.15987,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:13.261Z],
+     ask: 1.15991,
+     bid: 1.15988,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:17.926Z],
+     ask: 1.15988,
+     bid: 1.15987,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:18.897Z],
+     ask: 1.1599,
+     bid: 1.15988,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:21.790Z],
+     ask: 1.1599,
+     bid: 1.15986,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:22.813Z],
+     ask: 1.1599,
+     bid: 1.15987,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:27.440Z],
+     ask: 1.15989,
+     bid: 1.15987,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:33.589Z],
+     ask: 1.15991,
+     bid: 1.15989,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:35.218Z],
+     ask: 1.15991,
+     bid: 1.15987,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:41.420Z],
+     ask: 1.15988,
+     bid: 1.15987,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:41.526Z],
+     ask: 1.15987,
+     bid: 1.15985,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:41.581Z],
+     ask: 1.15985,
+     bid: 1.15984,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:00:44.163Z],
+     ask: 1.15984,
+     bid: 1.15983,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:02.786Z],
+     ask: 1.15983,
+     bid: 1.15982,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:05.645Z],
+     ask: 1.15983,
+     bid: 1.15981,
+     ask_volume: 4.5,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:05.902Z],
+     ask: 1.15984,
+     bid: 1.15981,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:08.028Z],
+     ask: 1.15982,
+     bid: 1.15981,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:23.980Z],
+     ask: 1.15982,
+     bid: 1.15979,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:47.399Z],
+     ask: 1.15981,
+     bid: 1.15976,
+     ask_volume: 4.139999866485596,
+     bid_volume: 1.1200000047683716
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:47.453Z],
+     ask: 1.15978,
+     bid: 1.15977,
+     ask_volume: 4.590000152587891,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:47.507Z],
+     ask: 1.15976,
+     bid: 1.15975,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.2199999988079071
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:47.560Z],
+     ask: 1.15975,
+     bid: 1.15974,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:47.666Z],
+     ask: 1.15975,
+     bid: 1.15973,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:47.720Z],
+     ask: 1.15973,
+     bid: 1.15971,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:47.876Z],
+     ask: 1.15973,
+     bid: 1.1597,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:49.201Z],
+     ask: 1.15971,
+     bid: 1.1597,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:49.305Z],
+     ask: 1.15973,
+     bid: 1.1597,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:50.389Z],
+     ask: 1.15976,
+     bid: 1.15973,
+     ask_volume: 2.25,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:01:52.632Z],
+     ask: 1.15974,
+     bid: 1.15971,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:02:07.713Z],
+     ask: 1.15973,
+     bid: 1.1597,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:02:07.921Z],
+     ask: 1.15974,
+     bid: 1.15971,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:02:08.131Z],
+     ask: 1.15974,
+     bid: 1.15973,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:02:08.845Z],
+     ask: 1.15971,
+     bid: 1.1597,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 06:02:08.951Z],
+     ask: 1.1597,
+     bid: 1.15969,
+     ask_volume: 4.5,
+     bid_volume: 0.899999976 (truncated)
+
+22:49:45.201 [warning] ** Undefined handle_info in "GenStage.Streamer"
+** Unhandled message: {{#Reference<0.2503223620.3746037762.194404>, 8},
+ [
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:00.065Z],
+     ask: 1.16074,
+     bid: 1.16067,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 3.9800000190734863
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:00.532Z],
+     ask: 1.16072,
+     bid: 1.16068,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 2.5399999618530273
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:00.791Z],
+     ask: 1.16068,
+     bid: 1.16066,
+     ask_volume: 0.9900000095367432,
+     bid_volume: 1.5700000524520874
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:00.896Z],
+     ask: 1.16067,
+     bid: 1.16063,
+     ask_volume: 1.350000023841858,
+     bid_volume: 2.25
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.000Z],
+     ask: 1.16067,
+     bid: 1.16062,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.208Z],
+     ask: 1.16067,
+     bid: 1.16063,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.314Z],
+     ask: 1.16066,
+     bid: 1.16061,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 9.0
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.421Z],
+     ask: 1.16064,
+     bid: 1.16061,
+     ask_volume: 2.700000047683716,
+     bid_volume: 8.100000381469727
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.476Z],
+     ask: 1.16062,
+     bid: 1.16058,
+     ask_volume: 0.11999999731779099,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.634Z],
+     ask: 1.16062,
+     bid: 1.16059,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.739Z],
+     ask: 1.16063,
+     bid: 1.16059,
+     ask_volume: 2.1500000953674316,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.844Z],
+     ask: 1.16063,
+     bid: 1.16058,
+     ask_volume: 3.240000009536743,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:01.948Z],
+     ask: 1.16063,
+     bid: 1.16057,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:02.258Z],
+     ask: 1.16064,
+     bid: 1.16063,
+     ask_volume: 3.1500000953674316,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:02.318Z],
+     ask: 1.16068,
+     bid: 1.16065,
+     ask_volume: 3.9100000858306885,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:02.372Z],
+     ask: 1.16067,
+     bid: 1.16062,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.350000023841858
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:02.940Z],
+     ask: 1.16066,
+     bid: 1.16064,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:03.045Z],
+     ask: 1.16067,
+     bid: 1.16062,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 2.700000047683716
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:03.150Z],
+     ask: 1.16066,
+     bid: 1.16061,
+     ask_volume: 1.8899999856948853,
+     bid_volume: 0.44999998807907104
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:03.255Z],
+     ask: 1.16066,
+     bid: 1.16059,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:03.434Z],
+     ask: 1.16066,
+     bid: 1.1606,
+     ask_volume: 3.950000047683716,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:03.694Z],
+     ask: 1.16065,
+     bid: 1.1606,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:03.900Z],
+     ask: 1.16066,
+     bid: 1.1606,
+     ask_volume: 3.950000047683716,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:03.955Z],
+     ask: 1.16067,
+     bid: 1.16061,
+     ask_volume: 1.159999966621399,
+     bid_volume: 1.7999999523162842
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:04.060Z],
+     ask: 1.16066,
+     bid: 1.16063,
+     ask_volume: 1.159999966621399,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:04.266Z],
+     ask: 1.16069,
+     bid: 1.16062,
+     ask_volume: 2.1500000953674316,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:05.850Z],
+     ask: 1.16069,
+     bid: 1.16061,
+     ask_volume: 1.8899999856948853,
+     bid_volume: 3.1500000953674316
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:06.156Z],
+     ask: 1.16068,
+     bid: 1.16061,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 3.1500000953674316
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:06.668Z],
+     ask: 1.16065,
+     bid: 1.1606,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:06.771Z],
+     ask: 1.16067,
+     bid: 1.16059,
+     ask_volume: 2.559999942779541,
+     bid_volume: 4.5
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:06.875Z],
+     ask: 1.16064,
+     bid: 1.1606,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 3.5999999046325684
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:07.135Z],
+     ask: 1.16063,
+     bid: 1.1606,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:07.241Z],
+     ask: 1.16063,
+     bid: 1.16058,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 6.300000190734863
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:07.349Z],
+     ask: 1.16063,
+     bid: 1.16057,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 4.050000190734863
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:09.343Z],
+     ask: 1.16061,
+     bid: 1.16058,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:09.601Z],
+     ask: 1.16061,
+     bid: 1.16057,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 7.650000095367432
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:10.061Z],
+     ask: 1.16062,
+     bid: 1.16057,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 8.550000190734863
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:10.934Z],
+     ask: 1.16063,
+     bid: 1.16057,
+     ask_volume: 2.700000047683716,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:11.289Z],
+     ask: 1.16062,
+     bid: 1.16057,
+     ask_volume: 0.8999999761581421,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:11.647Z],
+     ask: 1.16062,
+     bid: 1.16058,
+     ask_volume: 2.700000047683716,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:11.751Z],
+     ask: 1.16062,
+     bid: 1.16059,
+     ask_volume: 1.7999999523162842,
+     bid_volume: 0.8999999761581421
+   },
+   %TheoryCraft.MarketSource.Tick{
+     time: ~U[2025-12-01 08:00:14.306Z],
+     ask: 1.16063,
+     bid: 1.1606,
+     ask_volume: 3.859999895 (truncated)
+
+22:49:45.324 [warning] ** Undefined handle_info in "GenStage.Streamer"
+** Unhandled message: {:down, {#Reference<0.2503223620.3746037762.194404>, 6}, :normal}
+** Stream started at:
+    (gen_stage 1.3.2) lib/gen_stage.ex:1706: anonymous fn/0 in GenStage.from_enumerable/2
+    (elixir 1.18.3) lib/keyword.ex:1420: Keyword.pop_lazy/3
+    (gen_stage 1.3.2) lib/gen_stage.ex:1705: GenStage.from_enumerable/2
+    (theory_craft 0.1.0) lib/theory_craft/market_source.ex:873: TheoryCraft.MarketSource.materialize_pipeline/1
+    (theory_craft 0.1.0) lib/theory_craft/market_source.ex:762: TheoryCraft.MarketSource.stream/1
+    (elixir 1.18.3) src/elixir.erl:386: :elixir.eval_external_handler/3
+    (stdlib 6.2.2) erl_eval.erl:919: :erl_eval.do_apply/7
+
+
+22:49:45.326 [warning] ** Undefined handle_info in "GenStage.Streamer"
+** Unhandled message: {:down, {#Reference<0.2503223620.3746037762.194404>, 8}, :normal}
+** Stream started at:
+    (gen_stage 1.3.2) lib/gen_stage.ex:1706: anonymous fn/0 in GenStage.from_enumerable/2
+    (elixir 1.18.3) lib/keyword.ex:1420: Keyword.pop_lazy/3
+    (gen_stage 1.3.2) lib/gen_stage.ex:1705: GenStage.from_enumerable/2
+    (theory_craft 0.1.0) lib/theory_craft/market_source.ex:873: TheoryCraft.MarketSource.materialize_pipeline/1
+    (theory_craft 0.1.0) lib/theory_craft/market_source.ex:762: TheoryCraft.MarketSource.stream/1
+    (elixir 1.18.3) src/elixir.erl:386: :elixir.eval_external_handler/3
+    (stdlib 6.2.2) erl_eval.erl:919: :erl_eval.do_apply/7
+
+
+03:49:44.290 [debug] Tzdata polling for update.
+
+03:49:44.928 [debug] Tzdata polling shows the loaded tz database is up to date.
 ```

@@ -1,4 +1,4 @@
-defmodule DukascopyEx.BarData do
+defmodule Dukascopy.BarData do
   @moduledoc """
   Downloads and parses Dukascopy bar (OHLCV) data.
 
@@ -10,7 +10,7 @@ defmodule DukascopyEx.BarData do
 
   """
 
-  alias DukascopyEx.{Client, Instruments}
+  alias Dukascopy.{Client, Instruments}
   alias TheoryCraft.MarketSource.Bar
 
   @type timeframe :: :minute | :hour | :day

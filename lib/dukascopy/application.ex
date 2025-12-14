@@ -1,4 +1,4 @@
-defmodule DukascopyEx.Application do
+defmodule Dukascopy.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,10 +8,10 @@ defmodule DukascopyEx.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {Task.Supervisor, name: DukascopyEx.TaskSupervisor}
+      {Task.Supervisor, name: Dukascopy.TaskSupervisor}
     ]
 
-    opts = [strategy: :one_for_one, name: DukascopyEx.Supervisor]
+    opts = [strategy: :one_for_one, name: Dukascopy.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

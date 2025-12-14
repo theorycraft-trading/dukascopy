@@ -1,6 +1,6 @@
-defmodule DukascopyEx.Enums do
+defmodule Dukascopy.Enums do
   @moduledoc """
-  Enumerations for DukascopyEx.
+  Enumerations for Dukascopy.
 
   Uses SimpleEnum to generate types and validation macros.
 
@@ -13,7 +13,7 @@ defmodule DukascopyEx.Enums do
 
   ## Usage
 
-      require DukascopyEx.Enums, as: Enums
+      require Dukascopy.Enums, as: Enums
 
       # Validation (returns the key or raises)
       price_type = Enums.price_type(:bid, :key)  #=> :bid

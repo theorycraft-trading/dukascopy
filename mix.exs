@@ -1,9 +1,9 @@
-defmodule DukascopyEx.MixProject do
+defmodule Dukascopy.MixProject do
   use Mix.Project
 
   def project() do
     [
-      app: :dukascopy_ex,
+      app: :dukascopy,
       version: "0.1.0",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
@@ -20,7 +20,7 @@ defmodule DukascopyEx.MixProject do
   def application() do
     [
       extra_applications: [:logger],
-      mod: {DukascopyEx.Application, []}
+      mod: {Dukascopy.Application, []}
     ]
   end
 

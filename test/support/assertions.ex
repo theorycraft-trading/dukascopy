@@ -1,4 +1,4 @@
-defmodule DukascopyEx.TestAssertions do
+defmodule Dukascopy.TestAssertions do
   @moduledoc false
 
   import ExUnit.Assertions

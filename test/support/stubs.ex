@@ -1,4 +1,4 @@
-defmodule DukascopyEx.TestStubs do
+defmodule Dukascopy.TestStubs do
   @moduledoc false
 
   # Default options for all stubs (disable retry logging and speed up retries in tests)

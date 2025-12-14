@@ -1,6 +1,6 @@
-# DukascopyEx
+# Dukascopy
 
-[DukascopyEx](https://github.com/theorycraft-trading/dukascopy_ex) is a [TheoryCraft](https://github.com/theorycraft-trading/theory_craft) extension for downloading and streaming historical market data from Dukascopy Bank SA.
+[Dukascopy](https://github.com/theorycraft-trading/dukascopy) is a [TheoryCraft](https://github.com/theorycraft-trading/theory_craft) extension for downloading and streaming historical market data from Dukascopy Bank SA.
 
 Access free historical tick and bar data for 1600+ instruments including Forex, Stocks, Crypto, Commodities, Bonds, ETFs, and Indices.
 
@@ -12,12 +12,12 @@ Breaking changes may occur between releases as we refine the interface and add n
 
 ## Installation
 
-Add `dukascopy_ex` to your list of dependencies in `mix.exs`:
+Add `dukascopy` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:dukascopy_ex, github: "theorycraft-trading/dukascopy_ex"}
+    {:dukascopy, github: "theorycraft-trading/dukascopy"}
   ]
 end
 ```
@@ -27,7 +27,7 @@ end
 ### Fetch Tick Data
 
 ```elixir
-alias DukascopyEx.TickData
+alias Dukascopy.TickData
 
 # Fetch tick data for EUR/USD on 2024-11-15 at 10:00 UTC
 {:ok, ticks} = TickData.fetch("EUR/USD", ~D[2024-11-15], 10)
@@ -50,7 +50,7 @@ alias TheoryCraft.MarketSource
 # Build a pipeline with Dukascopy data
 market =
   %MarketSource{}
-  # TODO: Add DukascopyEx.DataFeed module here
+  # TODO: Add Dukascopy.DataFeed module here
   |> MarketSource.resample("m5", name: "EURUSD_m5")
   |> MarketSource.resample("h1", name: "EURUSD_h1")
 
@@ -63,7 +63,7 @@ end
 ### Browse Instruments
 
 ```elixir
-alias DukascopyEx.Instruments
+alias Dukascopy.Instruments
 
 # Get all 1600+ instruments
 Instruments.all()

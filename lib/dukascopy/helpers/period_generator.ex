@@ -1,4 +1,4 @@
-defmodule DukascopyEx.Helpers.PeriodGenerator do
+defmodule Dukascopy.Helpers.PeriodGenerator do
   @moduledoc false
 
   #
@@ -15,7 +15,7 @@ defmodule DukascopyEx.Helpers.PeriodGenerator do
   # This module handles fallback to finer granularities automatically.
   #
 
-  alias DukascopyEx.Helpers.TimeRange
+  alias Dukascopy.Helpers.TimeRange
 
   @typedoc "Fetch granularity for bar data"
   @type granularity :: :minute | :hour | :day

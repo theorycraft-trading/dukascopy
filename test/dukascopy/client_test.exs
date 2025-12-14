@@ -1,9 +1,9 @@
-defmodule DukascopyEx.ClientTest do
+defmodule Dukascopy.ClientTest do
   use ExUnit.Case, async: true
 
-  alias DukascopyEx.Client
-  alias DukascopyEx.TestFixtures
-  alias DukascopyEx.TestStubs
+  alias Dukascopy.Client
+  alias Dukascopy.TestFixtures
+  alias Dukascopy.TestStubs
 
   ## Tests
 

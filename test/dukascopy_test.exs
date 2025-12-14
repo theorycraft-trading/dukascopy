@@ -1,11 +1,11 @@
-defmodule DukascopyExTest do
+defmodule DukascopyTest do
   # async: false required because MarketSource.stream() spawns GenStage processes
   # that need access to Req.Test stubs via shared mode
   use ExUnit.Case, async: false
 
-  import DukascopyEx.TestAssertions
+  import Dukascopy.TestAssertions
 
-  alias DukascopyEx.TestFixtures
+  alias Dukascopy.TestFixtures
 
   setup do
     Req.Test.set_req_test_to_shared()
@@ -17,25 +17,25 @@ defmodule DukascopyExTest do
   describe "stream/3 validation" do
     test "raises on missing date range" do
       assert_raise ArgumentError, ~r/Missing date range/, fn ->
-        DukascopyEx.stream("EUR/USD", :ticks, [])
+        Dukascopy.stream("EUR/USD", :ticks, [])
       end
     end
 
     test "raises on unknown instrument" do
       assert_raise ArgumentError, ~r/Unknown instrument/, fn ->
-        DukascopyEx.stream("UNKNOWN", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+        Dukascopy.stream("UNKNOWN", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
       end
     end
 
     test "raises on invalid timeframe" do
       assert_raise ArgumentError, ~r/Invalid timeframe/, fn ->
-        DukascopyEx.stream("EUR/USD", "invalid", from: ~D[2024-01-01], to: ~D[2024-01-02])
+        Dukascopy.stream("EUR/USD", "invalid", from: ~D[2024-01-01], to: ~D[2024-01-02])
       end
     end
 
     test "raises on invalid price_type" do
       assert_raise ArgumentError, ~r/Invalid price_type/, fn ->
-        DukascopyEx.stream("EUR/USD", :ticks,
+        Dukascopy.stream("EUR/USD", :ticks,
           from: ~D[2024-01-01],
           to: ~D[2024-01-02],
           price_type: :invalid
@@ -52,7 +52,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_ticks_exact)
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 00:05:00Z])
 
-      [first | _] = DukascopyEx.stream("EUR/USD", :ticks, opts) |> Enum.take(10)
+      [first | _] = Dukascopy.stream("EUR/USD", :ticks, opts) |> Enum.take(10)
 
       assert first.time == ~U[2019-02-04 00:00:00.994Z]
       assert first.ask == 1.14545
@@ -66,7 +66,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_ticks_order)
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 00:05:00Z])
 
-      ticks = DukascopyEx.stream("EUR/USD", :ticks, opts) |> Enum.to_list()
+      ticks = Dukascopy.stream("EUR/USD", :ticks, opts) |> Enum.to_list()
 
       assert length(ticks) == 589
       assert_chronological_order ticks
@@ -85,7 +85,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_ticks_range)
         |> Keyword.merge(from: from, to: to)
 
-      ticks = DukascopyEx.stream("EUR/USD", :ticks, opts) |> Enum.to_list()
+      ticks = Dukascopy.stream("EUR/USD", :ticks, opts) |> Enum.to_list()
 
       assert length(ticks) > 0
 
@@ -101,11 +101,11 @@ defmodule DukascopyExTest do
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 00:01:00Z])
 
       [tick_millions | _] =
-        DukascopyEx.stream("EUR/USD", :ticks, Keyword.put(base_opts, :volume_units, :millions))
+        Dukascopy.stream("EUR/USD", :ticks, Keyword.put(base_opts, :volume_units, :millions))
         |> Enum.take(1)
 
       [tick_units | _] =
-        DukascopyEx.stream("EUR/USD", :ticks, Keyword.put(base_opts, :volume_units, :units))
+        Dukascopy.stream("EUR/USD", :ticks, Keyword.put(base_opts, :volume_units, :units))
         |> Enum.take(1)
 
       assert_in_delta tick_units.bid_volume, tick_millions.bid_volume * 1_000_000, 1
@@ -120,7 +120,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_m1_exact)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05])
 
-      [first | _] = DukascopyEx.stream("EUR/USD", "m1", opts) |> Enum.take(10)
+      [first | _] = Dukascopy.stream("EUR/USD", "m1", opts) |> Enum.take(10)
 
       assert first.time == ~U[2019-02-04 00:00:00Z]
       assert first.open == 1.14543
@@ -135,7 +135,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_m1_spacing)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05])
 
-      bars = DukascopyEx.stream("EUR/USD", "m1", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "m1", opts) |> Enum.to_list()
 
       assert length(bars) == 1440
       assert_uniform_spacing bars, :timer.minutes(1)
@@ -148,7 +148,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_m5)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05])
 
-      bars = DukascopyEx.stream("EUR/USD", "m5", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "m5", opts) |> Enum.to_list()
 
       assert length(bars) == 288
       assert_uniform_spacing bars, :timer.minutes(5)
@@ -159,7 +159,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_m5_ohlc)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05])
 
-      bars = DukascopyEx.stream("EUR/USD", "m5", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "m5", opts) |> Enum.to_list()
 
       assert length(bars) == 288
 
@@ -179,7 +179,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_h1_exact)
         |> Keyword.merge(from: ~D[2019-02-01], to: ~D[2019-02-28])
 
-      [first | _] = DukascopyEx.stream("EUR/USD", "h1", opts) |> Enum.take(24)
+      [first | _] = Dukascopy.stream("EUR/USD", "h1", opts) |> Enum.take(24)
 
       assert first.time == ~U[2019-02-01 00:00:00Z]
       assert first.open == 1.14482
@@ -193,7 +193,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_h4)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-06])
 
-      bars = DukascopyEx.stream("EUR/USD", "h4", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "h4", opts) |> Enum.to_list()
 
       assert length(bars) == 12
       assert_uniform_spacing bars, :timer.hours(4)
@@ -206,7 +206,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_daily_exact)
         |> Keyword.merge(from: ~D[2019-01-01], to: ~D[2019-01-31])
 
-      [first | _] = DukascopyEx.stream("EUR/USD", "D", opts) |> Enum.take(30)
+      [first | _] = Dukascopy.stream("EUR/USD", "D", opts) |> Enum.take(30)
 
       assert first.time == ~U[2019-01-01 00:00:00Z]
       assert first.open == 1.14598
@@ -232,12 +232,12 @@ defmodule DukascopyExTest do
           cache_folder_path: cache_path
         )
 
-      ticks1 = DukascopyEx.stream("EUR/USD", :ticks, opts) |> Enum.to_list()
+      ticks1 = Dukascopy.stream("EUR/USD", :ticks, opts) |> Enum.to_list()
 
       assert File.exists?(cache_path)
       assert length(File.ls!(cache_path)) > 0
 
-      ticks2 = DukascopyEx.stream("EUR/USD", :ticks, opts) |> Enum.to_list()
+      ticks2 = Dukascopy.stream("EUR/USD", :ticks, opts) |> Enum.to_list()
 
       assert length(ticks1) == length(ticks2)
 
@@ -256,7 +256,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:agg_tick_to_m1)
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 01:00:00Z])
 
-      [first | _] = DukascopyEx.stream("EUR/USD", "m1", opts) |> Enum.take(5)
+      [first | _] = Dukascopy.stream("EUR/USD", "m1", opts) |> Enum.take(5)
 
       assert first.time == ~U[2019-02-04 00:00:00Z]
       assert first.open == 1.14543
@@ -271,7 +271,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:agg_tick_to_m1_multi)
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 01:00:00Z])
 
-      bars = DukascopyEx.stream("EUR/USD", "m1", opts) |> Enum.take(10)
+      bars = Dukascopy.stream("EUR/USD", "m1", opts) |> Enum.take(10)
       second = Enum.at(bars, 1)
 
       assert second.time == ~U[2019-02-04 00:01:00Z]
@@ -287,7 +287,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:agg_tick_to_m5)
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 01:00:00Z])
 
-      [first | _] = DukascopyEx.stream("EUR/USD", "m5", opts) |> Enum.take(3)
+      [first | _] = Dukascopy.stream("EUR/USD", "m5", opts) |> Enum.take(3)
 
       assert first.time == ~U[2019-02-04 00:00:00Z]
       assert first.open == 1.14543
@@ -299,7 +299,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:agg_m5_spacing)
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 01:00:00Z])
 
-      bars = DukascopyEx.stream("EUR/USD", "m5", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "m5", opts) |> Enum.to_list()
 
       assert length(bars) == 12
       assert_uniform_spacing bars, :timer.minutes(5)
@@ -312,7 +312,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:agg_m1_to_h1)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05])
 
-      [first | _] = DukascopyEx.stream("EUR/USD", "h1", opts) |> Enum.take(3)
+      [first | _] = Dukascopy.stream("EUR/USD", "h1", opts) |> Enum.take(3)
 
       assert first.time == ~U[2019-02-04 00:00:00Z]
       assert first.open == 1.14543
@@ -324,7 +324,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:agg_h1_spacing_from_m1)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05])
 
-      bars = DukascopyEx.stream("EUR/USD", "h1", opts) |> Enum.take(24)
+      bars = Dukascopy.stream("EUR/USD", "h1", opts) |> Enum.take(24)
 
       assert length(bars) == 24
       assert_uniform_spacing bars, :timer.hours(1)
@@ -339,7 +339,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:ohlc_integrity)
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 01:00:00Z])
 
-      bars = DukascopyEx.stream("EUR/USD", "m5", opts) |> Enum.take(10)
+      bars = Dukascopy.stream("EUR/USD", "m5", opts) |> Enum.take(10)
 
       Enum.each(bars, fn bar ->
         assert bar.high >= bar.open
@@ -359,7 +359,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_m5)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05])
 
-      bars = DukascopyEx.stream("EUR/USD", "m5", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "m5", opts) |> Enum.to_list()
 
       assert length(bars) == 288
       assert Enum.all?(bars, & &1.new_bar?)
@@ -370,7 +370,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:stream_m5)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05], market_open: ~T[08:00:00])
 
-      bars = DukascopyEx.stream("EUR/USD", "m5", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "m5", opts) |> Enum.to_list()
 
       new_market_bars = Enum.filter(bars, & &1.new_market?)
 
@@ -388,7 +388,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:agg_h4)
         |> Keyword.merge(from: ~D[2019-02-04], to: ~D[2019-02-05])
 
-      bars = DukascopyEx.stream("EUR/USD", "h4", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "h4", opts) |> Enum.to_list()
 
       assert length(bars) == 6
       assert_uniform_spacing bars, :timer.hours(4)
@@ -403,8 +403,8 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:volume_agg)
         |> Keyword.merge(from: ~U[2019-02-04 00:00:00Z], to: ~U[2019-02-04 01:00:00Z])
 
-      m1_bars = DukascopyEx.stream("EUR/USD", "m1", opts) |> Enum.take(5)
-      [m5_first] = DukascopyEx.stream("EUR/USD", "m5", opts) |> Enum.take(1)
+      m1_bars = Dukascopy.stream("EUR/USD", "m1", opts) |> Enum.take(5)
+      [m5_first] = Dukascopy.stream("EUR/USD", "m5", opts) |> Enum.take(1)
 
       m1_volume_sum = Enum.reduce(m1_bars, 0, fn b, acc -> acc + b.volume end)
       assert_in_delta m5_first.volume, m1_volume_sum, 1
@@ -420,14 +420,14 @@ defmodule DukascopyExTest do
         |> Keyword.merge(from: ~D[2020-05-01], to: ~D[2020-05-02])
 
       all_bars =
-        DukascopyEx.stream("EUR/USD", "m1", Keyword.put(opts, :ignore_flats, false))
+        Dukascopy.stream("EUR/USD", "m1", Keyword.put(opts, :ignore_flats, false))
         |> Enum.to_list()
 
       flat_count = Enum.count(all_bars, &(&1.volume == 0.0))
       assert flat_count > 0, "Fixture must contain flat bars"
 
       filtered_bars =
-        DukascopyEx.stream("EUR/USD", "m1", Keyword.put(opts, :ignore_flats, true))
+        Dukascopy.stream("EUR/USD", "m1", Keyword.put(opts, :ignore_flats, true))
         |> Enum.to_list()
 
       assert Enum.all?(filtered_bars, &(&1.volume > 0))
@@ -439,7 +439,7 @@ defmodule DukascopyExTest do
         TestFixtures.stub_dukascopy(:ignore_flats_test)
         |> Keyword.merge(from: ~D[2020-05-01], to: ~D[2020-05-02], ignore_flats: false)
 
-      bars = DukascopyEx.stream("EUR/USD", "m1", opts) |> Enum.to_list()
+      bars = Dukascopy.stream("EUR/USD", "m1", opts) |> Enum.to_list()
 
       flat_count = Enum.count(bars, &(&1.volume == 0.0))
       assert flat_count == 180

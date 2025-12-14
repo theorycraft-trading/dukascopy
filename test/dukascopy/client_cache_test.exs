@@ -1,9 +1,9 @@
-defmodule DukascopyEx.ClientCacheTest do
+defmodule Dukascopy.ClientCacheTest do
   use ExUnit.Case, async: true
 
-  alias DukascopyEx.Client
-  alias DukascopyEx.TestFixtures
-  alias DukascopyEx.TestStubs
+  alias Dukascopy.Client
+  alias Dukascopy.TestFixtures
+  alias Dukascopy.TestStubs
 
   @valid_fixture TestFixtures.read_fixture!("EURUSD/2019/01/04/00h_ticks.bi5")
 

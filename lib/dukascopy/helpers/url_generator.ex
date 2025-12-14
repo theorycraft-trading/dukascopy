@@ -1,4 +1,4 @@
-defmodule DukascopyEx.Helpers.UrlGenerator do
+defmodule Dukascopy.Helpers.UrlGenerator do
   @moduledoc false
 
   #
@@ -12,7 +12,7 @@ defmodule DukascopyEx.Helpers.UrlGenerator do
   #   - Daily bars (yearly files)
   #
 
-  alias DukascopyEx.{Client, Enums, Instruments}
+  alias Dukascopy.{Client, Enums, Instruments}
 
   ## Public API
 
