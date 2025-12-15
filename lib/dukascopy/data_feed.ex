@@ -139,21 +139,25 @@ defmodule Dukascopy.DataFeed do
         []
 
       batch ->
-        Dukascopy.TaskSupervisor
-        |> Task.Supervisor.async_stream_nolink(batch, fetch_fn,
-          max_concurrency: batch_size,
-          timeout: 60_000,
-          ordered: true,
-          on_timeout: :kill_task,
-          zip_input_on_exit: true
+        batch
+        |> Enum.map(
+          &Task.Supervisor.async_nolink(Dukascopy.TaskSupervisor, fn -> fetch_fn.(&1) end)
         )
-        |> Stream.flat_map(&handle_fetch_result(&1, halt_on_error))
+        |> Task.yield_many(timeout: 60_000, on_timeout: :kill_task)
+        |> Enum.zip(batch)
+        |> Enum.flat_map(&handle_fetch_result(&1, halt_on_error))
     end)
   end
 
-  defp handle_fetch_result({:ok, items}, _halt_on_error), do: items
+  defp handle_fetch_result({{_task, result}, period}, halt_on_error) do
+    case result do
+      {:ok, items} when is_list(items) -> items
+      {:exit, reason} -> handle_error(period, {:exit, reason}, halt_on_error)
+      nil -> handle_error(period, :timeout, halt_on_error)
+    end
+  end
 
-  defp handle_fetch_result({:exit, {period, reason}}, halt_on_error) do
+  defp handle_error(period, reason, halt_on_error) do
     message = "Fetch failed for #{inspect(period)}: #{inspect(reason)}"
 
     case halt_on_error do
