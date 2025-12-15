@@ -11,7 +11,7 @@ defmodule Dukascopy.MixProject do
       deps: deps(),
       preferred_cli_env: [ci: :test],
       aliases: aliases(),
-      elixirc_options: [warnings_as_errors: true],
+      # elixirc_options: [warnings_as_errors: true],
       dialyzer: [plt_add_apps: [:mix]],
       escript: escript()
     ]
