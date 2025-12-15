@@ -22,50 +22,74 @@ def deps do
 end
 ```
 
-## Quick Start
+## CLI Usage
 
-### Fetch Tick Data
+Install the CLI:
 
-```elixir
-alias Dukascopy.TickData
-
-# Fetch tick data for EUR/USD on 2024-11-15 at 10:00 UTC
-{:ok, ticks} = TickData.fetch("EUR/USD", ~D[2024-11-15], 10)
-
-# Returns TheoryCraft.MarketSource.Tick structs
-%TheoryCraft.MarketSource.Tick{
-  time: ~U[2024-11-15 10:00:00.123Z],
-  ask: 1.05623,
-  bid: 1.05621,
-  ask_volume: 1.5,
-  bid_volume: 2.0
-} = hd(ticks)
+```bash
+mix escript.install github theorycraft-trading/dukascopy
 ```
 
-### Stream with TheoryCraft
+### Download Data
 
-```elixir
-alias TheoryCraft.MarketSource
+```bash
+# Download daily EUR/USD data
+dukascopy download -i EUR/USD --from 2024-01-01 --to 2024-12-31
 
-# Build a pipeline with Dukascopy data
-market =
-  %MarketSource{}
-  # TODO: Add Dukascopy.DataFeed module here
-  |> MarketSource.resample("m5", name: "EURUSD_m5")
-  |> MarketSource.resample("h1", name: "EURUSD_h1")
+# Download 5-minute bars in JSON format
+dukascopy download -i EUR/USD -t m5 --from 2024-01-01 -f json
 
-# Stream events through the pipeline
-for event <- MarketSource.stream(market) do
-  IO.inspect(event)
-end
+# Download with caching enabled
+dukascopy download -i AAPL.US/USD -t h1 --from 2024-01-01 --cache
+
+# Download tick data
+dukascopy download -i EUR/USD -t tick --from 2024-01-01 --to 2024-01-02
 ```
 
-### Browse Instruments
+### Search Instruments
+
+```bash
+# Search for instruments
+dukascopy search EUR
+dukascopy search AAPL
+dukascopy search xau
+```
+
+### CLI Options
+
+```
+Usage:
+  dukascopy download -i INSTRUMENT --from DATE [options]
+  dukascopy search <query>
+
+Required:
+  -i, --instrument    Trading instrument (e.g., EUR/USD, AAPL.US/USD)
+  --from              Start date (YYYY-MM-DD)
+
+Options:
+  --to                End date (YYYY-MM-DD or 'now') [default: now]
+  -t, --timeframe     Timeframe: tick, m1, m5, m15, m30, h1, h4, D, W, M [default: D]
+  -p, --price-type    Price type: bid, ask, mid [default: bid]
+  -f, --format        Output format: csv, json, ndjson [default: csv]
+  -o, --output        Output directory [default: ./download]
+  -h, --help          Show help message
+```
+
+## Elixir API
+
+### Search Instruments
 
 ```elixir
 alias Dukascopy.Instruments
 
-# Get all 1600+ instruments
+# Search instruments by name
+Instruments.search("eur")
+# => ["EUR/USD", "EUR/GBP", "EUR/JPY", ...]
+
+Instruments.search("AAPL")
+# => ["AAPL.US/USD"]
+
+# Get all instruments
 Instruments.all()
 # => ["EUR/USD", "GBP/USD", "AAPL.US/USD", "BTC/USD", ...]
 
@@ -78,23 +102,84 @@ Instruments.commodities()   # => ["BRENT.CMD/USD", "COPPER.CMD/USD", ...]
 Instruments.agriculturals() # => ["COCOA.CMD/USD", "COFFEE.CMD/USX", ...]
 ```
 
-## Features
+### DataFeed (TheoryCraft Integration)
 
-### Current
+Use `Dukascopy.DataFeed` with TheoryCraft's `MarketSource` to build trading pipelines:
 
-- **Tick Data Download**: Fetch historical tick data with bid/ask prices and volumes
-- **1600+ Instruments**: Forex, Stocks, Crypto, Commodities, Bonds, ETFs, Indices
-- **TheoryCraft Integration**: Native `Tick` struct compatible with TheoryCraft pipelines
-- **Instrument Metadata**: Pip values and categorization
+```elixir
+alias TheoryCraft.MarketSource
+alias Dukascopy.DataFeed
 
-### Planned
+# Build a pipeline with Dukascopy data
+opts = [
+  instrument: "EUR/USD",
+  granularity: :ticks,
+  from: ~D[2024-01-01],
+  to: ~D[2024-01-31]
+]
 
-- **Bar Data**: Download pre-aggregated OHLC bars (m1, m5, m15, m30, h1, h4, d1)
-- **Datafeed**: Stream real-time and historical data through GenStage producers
-- **Local Storage**: Download and cache data locally for offline backtesting
-- **CLI**: Command-line interface for data management
-- **Date Range Downloads**: Batch download across date ranges with progress tracking
-- **Multiple Output Formats**: CSV, JSON exports
+market =
+  %MarketSource{}
+  |> MarketSource.add_data({DataFeed, opts}, name: "EURUSD")
+  |> MarketSource.resample("m5", name: "EURUSD_m5")
+  |> MarketSource.resample("h1", name: "EURUSD_h1")
+
+# Stream events through the pipeline
+for event <- MarketSource.stream(market) do
+  IO.inspect(event)
+end
+```
+
+Available granularities: `:ticks`, `:minute`, `:hour`, `:day`
+
+### Streaming API
+
+Use `Dukascopy.stream/3` for aggregated data with automatic resampling:
+
+```elixir
+# Stream raw ticks
+Dukascopy.stream("EUR/USD", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+|> Enum.take(1000)
+
+# Stream 5-minute bars
+Dukascopy.stream("EUR/USD", "m5", from: ~D[2024-01-01], to: ~D[2024-01-31])
+|> Enum.to_list()
+
+# Stream hourly bars with options
+Dukascopy.stream("EUR/USD", "h1",
+  from: ~D[2024-01-01],
+  to: ~D[2024-12-31],
+  price_type: :mid,
+  timezone: "America/New_York"
+)
+|> Enum.to_list()
+
+# Stream daily bars with caching
+Dukascopy.stream("EUR/USD", "D",
+  date_range: Date.range(~D[2020-01-01], ~D[2024-01-01]),
+  use_cache: true
+)
+|> Enum.to_list()
+
+# Stream weekly bars
+Dukascopy.stream("EUR/USD", "W",
+  from: ~D[2024-01-01],
+  to: ~D[2024-12-31],
+  market_open: ~T[17:00:00],
+  weekly_open: :sunday
+)
+|> Enum.to_list()
+```
+
+Supported timeframes (strings or atoms):
+- `:ticks` - Raw tick data
+- `t<N>` - N ticks per bar (e.g., `t5`, `t100`)
+- `s<N>` - N-second bars (e.g., `s30`)
+- `m<N>` - N-minute bars (e.g., `m1`, `m5`, `m15`)
+- `h<N>` - N-hour bars (e.g., `h1`, `h4`)
+- `D<N>` - N-day bars (e.g., `D`, `D3`)
+- `W<N>` - N-week bars (e.g., `W`)
+- `M<N>` - N-month bars (e.g., `M`)
 
 ## Instruments
 
