@@ -60,6 +60,27 @@ defmodule Dukascopy.Instruments do
   ## Public API
 
   @doc """
+  Search for instruments matching the given query.
+
+  The search is case-insensitive and matches any part of the instrument name.
+
+  ## Examples
+
+      iex> Instruments.search("gas")
+      ["GAS.CMD/USD", "GAS.ES/EUR"]
+      iex> Instruments.search("AAPL")
+      ["AAPL.US/USD"]
+
+  """
+  @spec search(String.t()) :: [String.t()]
+  def search(query) do
+    query = String.upcase(query)
+
+    @all_instruments
+    |> Enum.filter(&String.contains?(String.upcase(&1), query))
+  end
+
+  @doc """
   Returns the list of all available instruments.
 
   ## Examples

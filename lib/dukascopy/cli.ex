@@ -2,6 +2,7 @@ defmodule Dukascopy.CLI do
   @moduledoc false
 
   alias Dukascopy.CLI.{Escript, Formatter, Options, Printer}
+  alias Dukascopy.Instruments
 
   ## Public API
 
@@ -22,12 +23,37 @@ defmodule Dukascopy.CLI do
   ## Private functions
 
   defp run(argv) do
-    if "--help" in argv or "-h" in argv do
-      IO.puts(Options.help_text())
-      :ok
-    else
-      execute(argv)
+    cond do
+      "--help" in argv or "-h" in argv -> help()
+      match?(["download" | _], argv) -> execute(tl(argv))
+      match?(["search" | _], argv) -> search(tl(argv))
+      true -> help()
     end
+  end
+
+  defp help() do
+    IO.puts(Options.help_text())
+    :ok
+  end
+
+  defp search([]) do
+    Printer.print_error("Usage: dukascopy search <query>")
+    {:error, :missing_query}
+  end
+
+  defp search([query | _]) do
+    results = Instruments.search(query)
+
+    case results do
+      [] ->
+        IO.puts("No instruments found matching \"#{query}\"")
+
+      instruments ->
+        IO.puts("Found #{length(instruments)} instrument(s):\n")
+        Enum.each(instruments, &IO.puts("  #{&1}"))
+    end
+
+    :ok
   end
 
   defp execute(argv) do

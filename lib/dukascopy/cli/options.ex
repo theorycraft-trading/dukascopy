@@ -186,7 +186,12 @@ defmodule Dukascopy.CLI.Options do
     Dukascopy - Download historical market data
 
     Usage:
-      dukascopy -i INSTRUMENT --from DATE [options]
+      dukascopy download -i INSTRUMENT --from DATE [options]
+      dukascopy search <query>
+
+    Commands:
+      download            Download historical data
+      search <query>      Search for instruments by name
 
     Required:
       -i, --instrument    Trading instrument (e.g., EUR/USD, AAPL.US/USD)
@@ -208,7 +213,7 @@ defmodule Dukascopy.CLI.Options do
       -o, --output        Output directory [default: ./download]
       --filename          Custom filename (without extension)
 
-    Download options:
+    Network options:
       --batch-size        Parallel downloads per batch [default: 10]
       --batch-pause       Pause between batches in ms [default: 1000]
       --cache             Enable file caching [default: false]
@@ -227,9 +232,9 @@ defmodule Dukascopy.CLI.Options do
       -h, --help          Show this help message
 
     Examples:
-      dukascopy -i EUR/USD --from 2024-01-01 --to 2024-01-31
-      dukascopy -i EUR/USD -t m5 --from 2024-01-01 -f json
-      dukascopy -i AAPL.US/USD -t D --from 2020-01-01 --cache
+      dukascopy download -i EUR/USD --from 2024-01-01 --to 2024-01-31
+      dukascopy download -i EUR/USD -t m5 --from 2024-01-01 -f json
+      dukascopy search EUR
     """
   end
 
