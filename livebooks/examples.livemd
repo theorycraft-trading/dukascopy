@@ -145,6 +145,50 @@ Dukascopy.stream("EUR/USD", "h1", from: ~D[2025-12-01], to: ~D[2025-12-02])
 24
 ```
 
+## DataFeed
+
+```elixir
+alias TheoryCraft.MarketSource
+alias KinoTheoryCraft.Chart
+
+candlestick_options = %{
+  up_color: "#00bfff",
+  down_color: "#683ab6",
+  border_visible: true,
+  border_up_color: "#0288d1",
+  border_down_color: "#4527a0",
+  wick_up_color: "#0288d1",
+  wick_down_color: "#4527a0",
+  price_format: %{
+    type: "price",
+    precision: 5,
+    min_move: 0.00001
+  }
+}
+
+chart_options = %{
+  time_scale: %{time_visible: true, seconds_visible: true}
+}
+
+feed_options = [
+  instrument: "EUR/USD",
+  from: ~D[2025-12-01],
+  to: ~D[2025-12-02],
+  use_cache: true,
+  cache_folder_path: Path.join(__DIR__, ".dukascopy-cache")
+]
+
+market_source =
+  %MarketSource{}
+  |> MarketSource.add_data({Dukascopy.DataFeed, feed_options}, name: "data")
+  |> MarketSource.resample("m5", bar_only: true, data: "data", name: "data_m5")
+  |> 
+
+Chart.new(width: :auto, height: 400, chart_options: chart_options)
+|> Chart.set_source(market_source)
+|> Chart.add_data_from_source("data_m5", :candlestick, options: candlestick_options)
+```
+
 ## Stream API
 
 ```elixir
@@ -221,45 +265,4 @@ stream
 
 ```text
 [%{close: 1.16031, high: 1.1607, low: 1.15975, open: 1.16011, time: ~U[2025-12-01 00:00:00Z], volume: 3369.889991760254, new_bar?: true, new_market?: false}, %{close: 1.1605, high: 1.16158, low: 1.16003, open: 1.1603, time: ~U[2025-12-01 01:00:00Z], volume: 4770.729982376099, new_bar?: true, new_market?: false}, %{close: 1.15949, high: 1.16057, low: 1.15928, open: 1.16049, time: ~U[2025-12-01 02:00:00Z], volume: 3214.3799905776978, new_bar?: true, new_market?: false}, %{close: 1.15968, high: 1.15974, low: 1.15893, open: 1.15948, time: ~U[2025-12-01 03:00:00Z], volume: 1771.3699989318848, new_bar?: true, new_market?: false}, %{close: 1.15986, high: 1.16023, low: 1.15944, open: 1.15969, time: ~U[2025-12-01 04:00:00Z], volume: 1633.7699987888336, new_bar?: true, new_market?: false}, %{close: 1.15978, high: 1.16014, low: 1.15947, open: 1.15985, time: ~U[2025-12-01 05:00:00Z], volume: 1998.1499989032745, new_bar?: true, new_market?: false}, %{close: 1.15962, high: 1.15989, low: 1.15903, open: 1.15976, time: ~U[2025-12-01 06:00:00Z], volume: 2550.7699975967407, new_bar?: true, new_market?: false}, %{close: 1.16068, high: 1.16128, low: 1.15954, open: 1.15963, time: ~U[2025-12-01 07:00:00Z], volume: 4009.539981365204, new_bar?: true, new_market?: false}, %{close: 1.16132, high: 1.16218, low: 1.1604, open: 1.16067, time: ~U[2025-12-01 08:00:00Z], volume: 6499.950031280518, new_bar?: true, new_market?: false}, %{close: 1.16221, high: 1.16235, low: 1.16134, open: 1.16134, time: ~U[2025-12-01 09:00:00Z], volume: 6231.139999389648, new_bar?: true, new_market?: false}, %{close: 1.16274, high: 1.16285, low: 1.16188, open: 1.1622, time: ~U[2025-12-01 10:00:00Z], volume: 4202.189998626709, new_bar?: true, new_market?: false}, %{close: 1.16277, high: 1.16321, low: 1.16241, open: 1.16274, time: ~U[2025-12-01 11:00:00Z], volume: 5567.309978485107, new_bar?: true, new_market?: false}, %{close: 1.16487, high: 1.16488, low: 1.16266, open: 1.16276, time: ~U[2025-12-01 12:00:00Z], volume: 5557.629993438721, new_bar?: true, new_market?: false}, %{close: 1.16448, high: 1.16522, low: 1.16394, open: 1.16488, time: ~U[2025-12-01 13:00:00Z], volume: 6752.520015716553, new_bar?: true, new_market?: false}, %{close: 1.16319, high: 1.1645, low: 1.163, open: 1.16448, time: ~U[2025-12-01 14:00:00Z], volume: 7978.010036468506, new_bar?: true, new_market?: false}, %{close: 1.16287, high: 1.16406, low: 1.16226, open: 1.16326, time: ~U[2025-12-01 15:00:00Z], volume: 8907.95000076294, new_bar?: true, new_market?: false}, %{close: 1.16227, high: 1.16342, low: 1.16208, open: 1.16289, time: ~U[2025-12-01 16:00:00Z], volume: 5154.189979553223, new_bar?: true, new_market?: false}, %{close: 1.16206, high: 1.16287, low: 1.16178, open: 1.16226, time: ~U[2025-12-01 17:00:00Z], volume: 3226.0300073623657, new_bar?: true, new_market?: false}, %{close: 1.16119, high: 1.16234, low: 1.16116, open: 1.16206, time: ~U[2025-12-01 18:00:00Z], volume: 3386.039987564087, new_bar?: true, new_market?: false}, %{close: 1.16083, high: 1.16122, low: 1.1607, open: 1.16117, time: ~U[2025-12-01 19:00:00Z], volume: 2510.579999923706, new_bar?: true, new_market?: false}, %{close: 1.16092, high: 1.161, low: 1.16063, open: 1.16085, time: ~U[2025-12-01 20:00:00Z], volume: 1971.8099966049194, new_bar?: true, new_market?: false}, %{close: 1.16092, high: 1.16108, low: 1.16077, open: 1.16095, time: ~U[2025-12-01 21:00:00Z], volume: 927.3600082397461, new_bar?: true, new_market?: false}, %{close: 1.16079, high: 1.16089, low: 1.16066, open: 1.16089, time: ~U[2025-12-01 22:00:00Z], volume: 355.8299990296364, new_bar?: true, new_market?: false}, %{close: 1.16066, high: 1.16101, low: 1.16065, open: 1.16078, time: ~U[2025-12-01 23:00:00Z], volume: 484.82000863552094, new_bar?: true, new_market?: false}, %{close: 1.16056, high: 1.16093, low: 1.16037, open: 1.16069, time: ~U[2025-12-02 00:00:00Z], volume: 1617.6500017642975, new_bar?: true, new_market?: false}, %{close: 1.16091, high: 1.1611, low: 1.16037, open: 1.16055, time: ~U[2025-12-02 01:00:00Z], volume: 2243.970009803772, new_bar?: true, new_market?: false}, %{close: 1.16117, high: 1.1612, low: 1.16085, open: 1.16089, time: ~U[2025-12-02 02:00:00Z], volume: 1377.380004644394, new_bar?: true, new_market?: false}, %{close: 1.1612, high: 1.16127, low: 1.16087, open: 1.16118, time: ~U[2025-12-02 03:00:00Z], volume: 2180.7300024032593, new_bar?: true, new_market?: false}, %{close: 1.16089, high: 1.1614, low: 1.16088, open: 1.1612, time: ~U[2025-12-02 04:00:00Z], volume: 1301.0500009059906, new_bar?: true, new_market?: false}, %{close: 1.16098, high: 1.1611, low: 1.16069, open: 1.16088, time: ~U[2025-12-02 05:00:00Z], volume: 1249.83000934124, new_bar?: true, new_market?: false}, %{close: 1.16094, high: 1.16109, low: 1.16047, open: 1.16099, time: ~U[2025-12-02 06:00:00Z], volume: 1671.920003414154, new_bar?: true, new_market?: false}, %{close: 1.16125, high: 1.16162, low: 1.16085, open: 1.16094, time: ~U[2025-12-02 07:00:00Z], volume: 3629.8199825286865, new_bar?: true, new_market?: false}, %{close: 1.16104, high: 1.16161, low: 1.16089, open: 1.16125, time: ~U[2025-12-02 08:00:00Z], volume: 3792.000015258789, new_bar?: true, new_market?: false}, %{close: 1.16098, high: 1.1614, low: 1.16024, open: 1.16105, time: ~U[2025-12-02 09:00:00Z], volume: 4751.3000230789185, new_bar?: true, new_market?: false}, %{close: 1.16065, high: 1.16121, low: 1.15983, open: 1.16099, time: ~U[2025-12-02 10:00:00Z], volume: 3783.2800102233887, new_bar?: true, new_market?: false}, %{close: 1.16116, high: 1.16128, low: 1.16034, open: 1.16065, time: ~U[2025-12-02 11:00:00Z], volume: 2905.060000896454, new_bar?: true, new_market?: false}, %{close: 1.16176, high: 1.16193, low: 1.16072, open: 1.16117, time: ~U[2025-12-02 12:00:00Z], volume: 3285.419984817505, new_bar?: true, new_market?: false}, %{close: 1.16174, high: 1.16194, low: 1.1611, open: 1.16177, time: ~U[2025-12-02 13:00:00Z], volume: 3264.290008544922, new_bar?: true, new_market?: false}, %{close: 1.16177, high: 1.1623, low: 1.16131, open: 1.16175, time: ~U[2025-12-02 14:00:00Z], volume: 6104.789951324463, new_bar?: true, new_market?: false}, %{close: 1.16061, high: 1.16185, low: 1.15932, open: 1.16178, time: ~U[2025-12-02 15:00:00Z], volume: 8719.37999343872, new_bar?: true, new_market?: false}, %{close: 1.15953, high: 1.16096, low: 1.1591, open: 1.16061, time: ~U[2025-12-02 16:00:00Z], volume: 6950.260021209717, new_bar?: true, new_market?: false}, %{close: 1.16071, high: 1.16078, low: 1.15928, open: 1.15952, time: ~U[2025-12-02 17:00:00Z], volume: 4033.2800216674805, new_bar?: true, new_market?: false}, %{close: 1.16087, high: 1.16131, low: 1.16056, open: 1.16071, time: ~U[2025-12-02 18:00:00Z], volume: 2401.5299921035767, new_bar?: true, ...}, %{close: 1.16206, high: 1.16248, low: 1.16086, open: 1.16088, time: ~U[2025-12-02 19:00:00Z], volume: 3078.0700030326843, ...}, %{close: 1.16243, high: 1.16258, low: 1.16196, open: 1.16204, time: ~U[2025-12-02 20:00:00Z], ...}, %{close: 1.16233, high: 1.16257, low: 1.1621, open: 1.16243, ...}, %{close: 1.16234, high: 1.16247, low: 1.16204, ...}, %{close: 1.1628, high: 1.1629, ...}]
-```
-
-```elixir
-alias TheoryCraft.MarketSource
-alias KinoTheoryCraft.Chart
-
-candlestick_options = %{
-  up_color: "#00bfff",
-  down_color: "#683ab6",
-  border_visible: true,
-  border_up_color: "#0288d1",
-  border_down_color: "#4527a0",
-  wick_up_color: "#0288d1",
-  wick_down_color: "#4527a0",
-  price_format: %{
-    type: "price",
-    precision: 5,
-    min_move: 0.00001
-  }
-}
-
-chart_options = %{
-  time_scale: %{time_visible: true, seconds_visible: true}
-}
-
-feed_options = [
-  instrument: "EUR/USD",
-  from: ~D[2025-12-01],
-  to: ~D[2025-12-02],
-  use_cache: true,
-  cache_folder_path: Path.join(__DIR__, ".dukascopy-cache")
-]
-
-market_source =
-  %MarketSource{}
-  |> MarketSource.add_data({Dukascopy.DataFeed, feed_options}, name: "data")
-  |> MarketSource.resample("m5", bar_only: true, data: "data", name: "data_m5")
-
-Chart.new(width: :auto, height: 400, chart_options: chart_options)
-|> Chart.set_source(market_source)
-|> Chart.add_data_from_source("data_m5", :candlestick, options: candlestick_options)
 ```
