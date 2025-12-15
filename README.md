@@ -82,13 +82,6 @@ Options:
 ```elixir
 alias Dukascopy.Instruments
 
-# Search instruments by name
-Instruments.search("eur")
-# => ["EUR/USD", "EUR/GBP", "EUR/JPY", ...]
-
-Instruments.search("AAPL")
-# => ["AAPL.US/USD"]
-
 # Get all instruments
 Instruments.all()
 # => ["EUR/USD", "GBP/USD", "AAPL.US/USD", "BTC/USD", ...]
@@ -100,6 +93,10 @@ Instruments.metals()        # => ["XAU/USD", "XAG/USD", ...]
 Instruments.stocks()        # => ["AAPL.US/USD", "TSLA.US/USD", ...]
 Instruments.commodities()   # => ["BRENT.CMD/USD", "COPPER.CMD/USD", ...]
 Instruments.agriculturals() # => ["COCOA.CMD/USD", "COFFEE.CMD/USX", ...]
+
+# Search instruments by name
+Instruments.search("eur")
+# => ["EUR/USD", "EUR/GBP", "EUR/JPY", ...]
 ```
 
 ### DataFeed (TheoryCraft Integration)
@@ -108,7 +105,6 @@ Use `Dukascopy.DataFeed` with TheoryCraft's `MarketSource` to build trading pipe
 
 ```elixir
 alias TheoryCraft.MarketSource
-alias Dukascopy.DataFeed
 
 # Build a pipeline with Dukascopy data
 opts = [
@@ -120,7 +116,7 @@ opts = [
 
 market =
   %MarketSource{}
-  |> MarketSource.add_data({DataFeed, opts}, name: "EURUSD")
+  |> MarketSource.add_data({Dukascopy.DataFeed, opts}, name: "EURUSD")
   |> MarketSource.resample("m5", name: "EURUSD_m5")
   |> MarketSource.resample("h1", name: "EURUSD_h1")
 
