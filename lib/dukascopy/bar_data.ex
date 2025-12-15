@@ -1,14 +1,15 @@
 defmodule Dukascopy.BarData do
-  @moduledoc """
-  Downloads and parses Dukascopy bar (OHLCV) data.
+  @moduledoc false
 
-  Supports multiple timeframes:
-
-    - `:minute` - 1 minute bars (one file per day)
-    - `:hour` - 1 hour bars (one file per month)
-    - `:day` - 1 day bars (one file per year)
-
-  """
+  #
+  # Downloads and parses Dukascopy bar (OHLCV) data.
+  #
+  # Supports multiple timeframes:
+  #
+  #   - `:minute` - 1 minute bars (one file per day)
+  #   - `:hour` - 1 hour bars (one file per month)
+  #   - `:day` - 1 day bars (one file per year)
+  #
 
   alias Dukascopy.{Client, Instruments}
   alias TheoryCraft.MarketSource.Bar

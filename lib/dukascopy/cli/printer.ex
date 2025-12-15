@@ -58,7 +58,11 @@ defmodule Dukascopy.CLI.Printer do
   ## Private functions
 
   defp print_divider do
-    IO.puts(IO.ANSI.light_black() <> "----------------------------------------------------" <> IO.ANSI.reset())
+    IO.puts(
+      IO.ANSI.light_black() <>
+        "----------------------------------------------------" <>
+        IO.ANSI.reset()
+    )
   end
 
   defp print_field(label, value) do
