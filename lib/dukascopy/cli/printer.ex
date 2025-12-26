@@ -13,7 +13,7 @@ defmodule Dukascopy.CLI.Printer do
     print_field("From date", Date.to_iso8601(opts.from))
     print_field("To date", Date.to_iso8601(opts.to))
 
-    if opts.timeframe != :ticks do
+    if opts.timeframe != :tick do
       print_field("Price type", opts.price_type)
     end
 

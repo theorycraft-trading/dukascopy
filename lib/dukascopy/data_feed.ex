@@ -31,8 +31,8 @@ defmodule Dukascopy.DataFeed do
 
   ## DataFeed-specific options
 
-    * `:granularity` - Data granularity (default: `:ticks`)
-      * `:ticks` - Raw tick data
+    * `:granularity` - Data granularity (default: `:tick`)
+      * `:tick` - Raw tick data
       * `:minute` - 1-minute bars
       * `:hour` - 1-hour bars
       * `:day` - Daily bars
@@ -78,7 +78,7 @@ defmodule Dukascopy.DataFeed do
     with {:ok, validated} <- Options.validate_feed(opts) do
       stream =
         case Keyword.fetch!(validated, :granularity) do
-          :ticks -> build_tick_stream(validated)
+          :tick -> build_tick_stream(validated)
           granularity -> build_bar_stream(granularity, validated)
         end
 

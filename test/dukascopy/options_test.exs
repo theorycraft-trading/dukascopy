@@ -10,7 +10,7 @@ defmodule Dukascopy.OptionsTest do
       assert {:ok, opts} =
                Options.validate(
                  "EUR/USD",
-                 :ticks,
+                 :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02]
                )
@@ -24,14 +24,14 @@ defmodule Dukascopy.OptionsTest do
       from = ~U[2024-01-01 10:00:00Z]
       to = ~U[2024-01-01 15:00:00Z]
 
-      assert {:ok, opts} = Options.validate("EUR/USD", :ticks, from: from, to: to)
+      assert {:ok, opts} = Options.validate("EUR/USD", :tick, from: from, to: to)
       assert {^from, ^to} = opts[:date_range]
     end
 
     test "validates with date_range" do
       range = Date.range(~D[2024-01-01], ~D[2024-01-31])
 
-      assert {:ok, opts} = Options.validate("EUR/USD", :ticks, date_range: range)
+      assert {:ok, opts} = Options.validate("EUR/USD", :tick, date_range: range)
       assert {from, to} = opts[:date_range]
       assert from == ~U[2024-01-01 00:00:00Z]
       # date_range includes the last day, so we add 1 day
@@ -40,7 +40,7 @@ defmodule Dukascopy.OptionsTest do
 
     test "returns error for unknown instrument" do
       assert {:error, {:unknown_instrument, "UNKNOWN"}} =
-               Options.validate("UNKNOWN", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+               Options.validate("UNKNOWN", :tick, from: ~D[2024-01-01], to: ~D[2024-01-02])
     end
 
     test "validates string timeframes" do
@@ -68,7 +68,7 @@ defmodule Dukascopy.OptionsTest do
       assert {:ok, opts} =
                Options.validate(
                  "EUR/USD",
-                 :ticks,
+                 :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02]
                )
@@ -92,7 +92,7 @@ defmodule Dukascopy.OptionsTest do
 
     test "allows overriding options" do
       assert {:ok, opts} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  price_type: :mid,
@@ -108,7 +108,7 @@ defmodule Dukascopy.OptionsTest do
     test "validates price_type option" do
       for pt <- [:bid, :ask, :mid] do
         assert {:ok, _} =
-                 Options.validate("EUR/USD", :ticks,
+                 Options.validate("EUR/USD", :tick,
                    from: ~D[2024-01-01],
                    to: ~D[2024-01-02],
                    price_type: pt
@@ -116,7 +116,7 @@ defmodule Dukascopy.OptionsTest do
       end
 
       assert {:error, {:invalid_price_type, :invalid}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  price_type: :invalid
@@ -126,7 +126,7 @@ defmodule Dukascopy.OptionsTest do
     test "validates volume_units option" do
       for vu <- [:millions, :thousands, :units] do
         assert {:ok, _} =
-                 Options.validate("EUR/USD", :ticks,
+                 Options.validate("EUR/USD", :tick,
                    from: ~D[2024-01-01],
                    to: ~D[2024-01-02],
                    volume_units: vu
@@ -134,7 +134,7 @@ defmodule Dukascopy.OptionsTest do
       end
 
       assert {:error, {:invalid_volume_units, :invalid}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  volume_units: :invalid
@@ -143,7 +143,7 @@ defmodule Dukascopy.OptionsTest do
 
     test "validates utc_offset option" do
       assert {:ok, opts} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  utc_offset: ~T[02:30:00]
@@ -152,7 +152,7 @@ defmodule Dukascopy.OptionsTest do
       assert opts[:utc_offset] == ~T[02:30:00]
 
       assert {:error, {:invalid_utc_offset, 150}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  utc_offset: 150
@@ -162,7 +162,7 @@ defmodule Dukascopy.OptionsTest do
     test "validates weekly_open option" do
       for day <- [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday] do
         assert {:ok, _} =
-                 Options.validate("EUR/USD", :ticks,
+                 Options.validate("EUR/USD", :tick,
                    from: ~D[2024-01-01],
                    to: ~D[2024-01-02],
                    weekly_open: day
@@ -170,7 +170,7 @@ defmodule Dukascopy.OptionsTest do
       end
 
       assert {:error, {:invalid_weekly_open, :invalid}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  weekly_open: :invalid
@@ -179,14 +179,14 @@ defmodule Dukascopy.OptionsTest do
 
     test "validates batch_size must be positive" do
       assert {:error, {:invalid_positive_integer, :batch_size, 0}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  batch_size: 0
                )
 
       assert {:error, {:invalid_positive_integer, :batch_size, -1}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  batch_size: -1
@@ -195,14 +195,14 @@ defmodule Dukascopy.OptionsTest do
 
     test "validates max_retries must be non-negative" do
       assert {:ok, _} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  max_retries: 0
                )
 
       assert {:error, {:invalid_non_negative_integer, :max_retries, -1}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  max_retries: -1
@@ -212,18 +212,18 @@ defmodule Dukascopy.OptionsTest do
 
   describe "validate!/3" do
     test "returns validated options on success" do
-      opts = Options.validate!("EUR/USD", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+      opts = Options.validate!("EUR/USD", :tick, from: ~D[2024-01-01], to: ~D[2024-01-02])
       assert is_list(opts)
       assert opts[:date_range]
     end
 
     test "raises ArgumentError on failure" do
       assert_raise ArgumentError, ~r/Unknown instrument/, fn ->
-        Options.validate!("UNKNOWN", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+        Options.validate!("UNKNOWN", :tick, from: ~D[2024-01-01], to: ~D[2024-01-02])
       end
 
       assert_raise ArgumentError, ~r/Missing date range/, fn ->
-        Options.validate!("EUR/USD", :ticks, [])
+        Options.validate!("EUR/USD", :tick, [])
       end
 
       assert_raise ArgumentError, ~r/Invalid timeframe/, fn ->
@@ -246,12 +246,12 @@ defmodule Dukascopy.OptionsTest do
   describe "type validation" do
     test "rejects non-string instrument" do
       assert {:error, {:unknown_instrument, 12_345}} =
-               Options.validate(12_345, :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+               Options.validate(12_345, :tick, from: ~D[2024-01-01], to: ~D[2024-01-02])
     end
 
     test "rejects numeric price_type" do
       assert {:error, {:invalid_price_type, 0}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  price_type: 0
@@ -260,7 +260,7 @@ defmodule Dukascopy.OptionsTest do
 
     test "utc_offset_as_string: rejects string utc_offset" do
       assert {:error, {:invalid_utc_offset, "xxx"}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  utc_offset: "xxx"
@@ -269,7 +269,7 @@ defmodule Dukascopy.OptionsTest do
 
     test "retry_delay_as_string: rejects string retry_delay" do
       assert {:error, {:invalid_retry_delay, "xxx"}} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  retry_delay: "xxx"
@@ -278,7 +278,7 @@ defmodule Dukascopy.OptionsTest do
 
     test "retry_delay accepts integer" do
       assert {:ok, opts} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  retry_delay: 500
@@ -291,7 +291,7 @@ defmodule Dukascopy.OptionsTest do
       delay_fn = fn attempt -> attempt * 100 end
 
       assert {:ok, opts} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  retry_delay: delay_fn
@@ -303,22 +303,22 @@ defmodule Dukascopy.OptionsTest do
 
   describe "date validation edge cases" do
     test "rejects missing date range" do
-      assert {:error, :missing_date_range} = Options.validate("EUR/USD", :ticks, [])
+      assert {:error, :missing_date_range} = Options.validate("EUR/USD", :tick, [])
     end
 
     test "rejects partial date range (only from)" do
       assert {:error, :partial_date_range} =
-               Options.validate("EUR/USD", :ticks, from: ~D[2024-01-01])
+               Options.validate("EUR/USD", :tick, from: ~D[2024-01-01])
     end
 
     test "rejects partial date range (only to)" do
       assert {:error, :partial_date_range} =
-               Options.validate("EUR/USD", :ticks, to: ~D[2024-01-02])
+               Options.validate("EUR/USD", :tick, to: ~D[2024-01-02])
     end
 
     test "rejects conflicting date_range and from/to" do
       assert {:error, :conflicting_date_options} =
-               Options.validate("EUR/USD", :ticks,
+               Options.validate("EUR/USD", :tick,
                  from: ~D[2024-01-01],
                  to: ~D[2024-01-02],
                  date_range: Date.range(~D[2024-02-01], ~D[2024-02-28])
@@ -332,7 +332,7 @@ defmodule Dukascopy.OptionsTest do
     test "returns default options for DataFeed" do
       defaults = Options.feed_defaults()
 
-      assert defaults[:granularity] == :ticks
+      assert defaults[:granularity] == :tick
       assert defaults[:price_type] == :bid
       assert defaults[:batch_size] == 10
       assert defaults[:pause_between_batches_ms] == 1000
@@ -426,14 +426,14 @@ defmodule Dukascopy.OptionsTest do
                  to: ~D[2024-01-02]
                )
 
-      assert opts[:granularity] == :ticks
+      assert opts[:granularity] == :tick
       assert opts[:price_type] == :bid
       assert opts[:batch_size] == 10
       assert opts[:pause_between_batches_ms] == 1000
     end
 
     test "validates granularity option" do
-      for g <- [:ticks, :minute, :hour, :day] do
+      for g <- [:tick, :minute, :hour, :day] do
         assert {:ok, opts} =
                  Options.validate_feed(
                    instrument: "EUR/USD",

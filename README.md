@@ -109,7 +109,7 @@ alias TheoryCraft.MarketSource
 # Build a pipeline with Dukascopy data
 opts = [
   instrument: "EUR/USD",
-  granularity: :ticks,
+  granularity: :tick,
   from: ~D[2024-01-01],
   to: ~D[2024-01-31]
 ]
@@ -126,7 +126,7 @@ for event <- MarketSource.stream(market) do
 end
 ```
 
-Available granularities: `:ticks`, `:minute`, `:hour`, `:day`
+Available granularities: `:tick`, `:minute`, `:hour`, `:day`
 
 ### Streaming API
 
@@ -134,7 +134,7 @@ Use `Dukascopy.stream/3` for aggregated data with automatic resampling:
 
 ```elixir
 # Stream raw ticks
-Dukascopy.stream("EUR/USD", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+Dukascopy.stream("EUR/USD", :tick, from: ~D[2024-01-01], to: ~D[2024-01-02])
 |> Enum.take(1000)
 
 # Stream 5-minute bars
@@ -168,7 +168,7 @@ Dukascopy.stream("EUR/USD", "W",
 ```
 
 Supported timeframes (strings or atoms):
-- `:ticks` - Raw tick data
+- `:tick` - Raw tick data
 - `t<N>` - N ticks per bar (e.g., `t5`, `t100`)
 - `s<N>` - N-second bars (e.g., `s30`)
 - `m<N>` - N-minute bars (e.g., `m1`, `m5`, `m15`)

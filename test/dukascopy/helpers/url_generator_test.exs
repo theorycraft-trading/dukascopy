@@ -10,7 +10,7 @@ defmodule Dukascopy.Helpers.UrlGeneratorTest do
       from = ~U[2019-06-22 16:00:00Z]
       to = ~U[2019-06-23 18:00:00Z]
 
-      {:ok, urls} = UrlGenerator.generate_urls("EUR/USD", :ticks, from, to)
+      {:ok, urls} = UrlGenerator.generate_urls("EUR/USD", :tick, from, to)
 
       assert urls == [
                "#{UrlGenerator.base_url()}/EURUSD/2019/05/22/16h_ticks.bi5",
@@ -46,7 +46,7 @@ defmodule Dukascopy.Helpers.UrlGeneratorTest do
       from = ~U[2019-06-30 23:59:00Z]
       to = ~U[2019-07-01 00:01:00Z]
 
-      {:ok, urls} = UrlGenerator.generate_urls("EUR/CAD", :ticks, from, to)
+      {:ok, urls} = UrlGenerator.generate_urls("EUR/CAD", :tick, from, to)
 
       assert urls == [
                "#{UrlGenerator.base_url()}/EURCAD/2019/05/30/23h_ticks.bi5",
@@ -168,7 +168,7 @@ defmodule Dukascopy.Helpers.UrlGeneratorTest do
       to = ~U[2019-01-02 00:00:00Z]
 
       assert {:error, {:unknown_instrument, "UNKNOWN"}} =
-               UrlGenerator.generate_urls("UNKNOWN", :ticks, from, to)
+               UrlGenerator.generate_urls("UNKNOWN", :tick, from, to)
     end
   end
 
@@ -227,7 +227,7 @@ defmodule Dukascopy.Helpers.UrlGeneratorTest do
       to = ~U[2019-06-22 18:00:00Z]
 
       {:ok, urls} =
-        UrlGenerator.generate_urls("EUR/USD", :ticks, from, to, utc_offset: ~T[01:00:00])
+        UrlGenerator.generate_urls("EUR/USD", :tick, from, to, utc_offset: ~T[01:00:00])
 
       assert urls == [
                "#{UrlGenerator.base_url()}/EURUSD/2019/05/22/17h_ticks.bi5",
@@ -260,7 +260,7 @@ defmodule Dukascopy.Helpers.UrlGeneratorTest do
       # 01/01/2024 12:00 Paris = 11:00 UTC
       {:ok, to_paris} = DateTime.new(~D[2024-01-01], ~T[12:00:00], "Europe/Paris")
 
-      {:ok, urls} = UrlGenerator.generate_urls("EUR/USD", :ticks, from_paris, to_paris)
+      {:ok, urls} = UrlGenerator.generate_urls("EUR/USD", :tick, from_paris, to_paris)
 
       assert urls == [
                "#{UrlGenerator.base_url()}/EURUSD/2024/00/01/09h_ticks.bi5",
@@ -275,10 +275,10 @@ defmodule Dukascopy.Helpers.UrlGeneratorTest do
       {:ok, summer} = DateTime.new(~D[2024-07-01], ~T[10:00:00], "Europe/Paris")
 
       {:ok, winter_urls} =
-        UrlGenerator.generate_urls("EUR/USD", :ticks, winter, DateTime.add(winter, 1, :hour))
+        UrlGenerator.generate_urls("EUR/USD", :tick, winter, DateTime.add(winter, 1, :hour))
 
       {:ok, summer_urls} =
-        UrlGenerator.generate_urls("EUR/USD", :ticks, summer, DateTime.add(summer, 1, :hour))
+        UrlGenerator.generate_urls("EUR/USD", :tick, summer, DateTime.add(summer, 1, :hour))
 
       assert winter_urls == ["#{UrlGenerator.base_url()}/EURUSD/2024/00/01/09h_ticks.bi5"]
       assert summer_urls == ["#{UrlGenerator.base_url()}/EURUSD/2024/06/01/08h_ticks.bi5"]

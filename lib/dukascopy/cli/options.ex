@@ -268,7 +268,7 @@ defmodule Dukascopy.CLI.Options do
     }
   end
 
-  defp parse_timeframe("tick"), do: :ticks
+  defp parse_timeframe("tick"), do: :tick
   defp parse_timeframe(tf), do: tf
 
   defp parse_date("now"), do: Date.utc_today()

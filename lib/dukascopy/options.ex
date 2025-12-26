@@ -93,13 +93,13 @@ defmodule Dukascopy.Options do
 
   Inherits all options from `defaults/0` and adds:
 
-    * `:granularity` - `:ticks` (default)
+    * `:granularity` - `:tick` (default)
     * `:halt_on_error` - `true` (default) - whether to crash on fetch errors
 
   """
   @spec feed_defaults() :: Keyword.t()
   def feed_defaults() do
-    Keyword.merge(defaults(), granularity: :ticks, halt_on_error: true)
+    Keyword.merge(defaults(), granularity: :tick, halt_on_error: true)
   end
 
   @doc """
@@ -117,7 +117,7 @@ defmodule Dukascopy.Options do
 
   ## DataFeed-specific options
 
-    * `:granularity` - `:ticks` (default), `:minute`, `:hour`, or `:day`
+    * `:granularity` - `:tick` (default), `:minute`, `:hour`, or `:day`
     * `:halt_on_error` - Whether to crash on fetch errors (default: `true`)
 
   ## Inherited options (from `defaults/0`)
@@ -195,7 +195,7 @@ defmodule Dukascopy.Options do
     end
   end
 
-  defp validate_timeframe(:ticks), do: :ok
+  defp validate_timeframe(:tick), do: :ok
 
   defp validate_timeframe(tf) do
     case TimeFrame.valid?(tf) do
@@ -345,9 +345,9 @@ defmodule Dukascopy.Options do
   @error_templates %{
     unknown_instrument: {"Unknown instrument: ~s", []},
     invalid_timeframe:
-      {"Invalid timeframe: ~s. Use :ticks or a TheoryCraft timeframe string (e.g., \"m5\", \"h1\", \"D\")",
+      {"Invalid timeframe: ~s. Use :tick or a TheoryCraft timeframe string (e.g., \"m5\", \"h1\", \"D\")",
        []},
-    invalid_granularity: {"Invalid granularity: ~s. Use :ticks, :minute, :hour, or :day", []},
+    invalid_granularity: {"Invalid granularity: ~s. Use :tick, :minute, :hour, or :day", []},
     invalid_price_type: {"Invalid price_type: ~s. Use :bid, :ask, or :mid", []},
     invalid_volume_units: {"Invalid volume_units: ~s. Use :millions, :thousands, or :units", []},
     invalid_utc_offset: {"Invalid utc_offset: ~s. Use a Time struct (e.g., ~T[02:30:00])", []},

@@ -31,7 +31,7 @@ defmodule Dukascopy.Helpers.UrlGenerator do
   ## Parameters
 
     * `instrument` - Trading instrument (e.g., "EUR/USD")
-    * `timeframe` - Data timeframe: `:ticks`, `:minute`, `:hour`, or `:day`
+    * `timeframe` - Data timeframe: `:tick`, `:minute`, `:hour`, or `:day`
     * `from` - Start datetime (DateTime), inclusive
     * `to` - End datetime (DateTime), exclusive
     * `opts` - Options:
@@ -45,7 +45,7 @@ defmodule Dukascopy.Helpers.UrlGenerator do
 
   ## Examples
 
-      iex> {:ok, urls} = UrlGenerator.generate_urls("EUR/USD", :ticks, ~U[2019-06-22 16:00:00Z], ~U[2019-06-22 18:00:00Z])
+      iex> {:ok, urls} = UrlGenerator.generate_urls("EUR/USD", :tick, ~U[2019-06-22 16:00:00Z], ~U[2019-06-22 18:00:00Z])
       iex> length(urls)
       2
 
@@ -113,7 +113,7 @@ defmodule Dukascopy.Helpers.UrlGenerator do
 
   ## Private functions
 
-  defp do_generate_urls(filename, :ticks, from, to, _price_type) do
+  defp do_generate_urls(filename, :tick, from, to, _price_type) do
     from
     |> generate_tick_periods(to)
     |> Enum.map(fn {date, hour} -> tick_url(filename, date, hour) end)

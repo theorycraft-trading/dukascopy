@@ -8,7 +8,7 @@ defmodule Dukascopy.Enums do
 
     * `price_type_keys` - `:bid | :ask | :mid`
     * `volume_units_keys` - `:millions | :thousands | :units`
-    * `granularity_keys` - `:ticks | :minute | :hour | :day`
+    * `granularity_keys` - `:tick | :minute | :hour | :day`
     * `weekly_open_keys` - `:monday | :tuesday | ... | :sunday`
 
   ## Usage
@@ -28,7 +28,7 @@ defmodule Dukascopy.Enums do
 
   defenum :price_type, [:bid, :ask, :mid]
   defenum :volume_units, [:millions, :thousands, :units]
-  defenum :granularity, [:ticks, :minute, :hour, :day]
+  defenum :granularity, [:tick, :minute, :hour, :day]
 
   defenum :weekly_open, [
     :monday,

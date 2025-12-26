@@ -9,7 +9,7 @@ defmodule Dukascopy do
   The main function is `stream/3` which returns a lazy stream of market data:
 
       # Stream raw ticks
-      iex> Dukascopy.stream("EUR/USD", :ticks, from: ~D[2024-01-01], to: ~D[2024-01-02])
+      iex> Dukascopy.stream("EUR/USD", :tick, from: ~D[2024-01-01], to: ~D[2024-01-02])
       ...> |> Enum.take(100)
 
       # Stream 5-minute bars
@@ -28,7 +28,7 @@ defmodule Dukascopy do
 
   Timeframes can be specified as strings or atoms (e.g., `"m5"` or `:m5`).
 
-    - `:ticks` - Raw tick data
+    - `:tick` - Raw tick data
     - `t<N>` - N ticks per bar (e.g., `:t5`)
     - `s<N>` - N-second bars (e.g., `:s30`)
     - `m<N>` - N-minute bars (e.g., `:m1`, `:m5`, `:m15`)
@@ -43,7 +43,7 @@ defmodule Dukascopy do
   alias TheoryCraft.{MarketSource, TimeFrame}
   alias TheoryCraft.MarketSource.MarketEvent
 
-  @type timeframe :: :ticks | atom() | String.t()
+  @type timeframe :: :tick | atom() | String.t()
 
   @doc """
   Creates a lazy stream of ticks or bars for an instrument and time period.
@@ -51,7 +51,7 @@ defmodule Dukascopy do
   ## Parameters
 
     * `instrument` - Trading instrument (e.g., "EUR/USD", "AAPL.US/USD")
-    * `timeframe` - Target timeframe: `:ticks` or a TheoryCraft timeframe (atom or string)
+    * `timeframe` - Target timeframe: `:tick` or a TheoryCraft timeframe (atom or string)
     * `opts` - Options keyword list (see below)
 
   ## Required Options
@@ -87,7 +87,7 @@ defmodule Dukascopy do
   ## Examples
 
       # Raw ticks for a single day
-      iex> Dukascopy.stream("EUR/USD", :ticks, from: ~D[2024-11-15], to: ~D[2024-11-16])
+      iex> Dukascopy.stream("EUR/USD", :tick, from: ~D[2024-11-15], to: ~D[2024-11-16])
       ...> |> Enum.take(1000)
 
       # 5-minute bars with mid price
@@ -153,8 +153,8 @@ defmodule Dukascopy do
 
   defp determine_source_and_strategy(timeframe, from, to) do
     case timeframe do
-      :ticks ->
-        {:ticks, :no_resample}
+      :tick ->
+        {:tick, :no_resample}
 
       _ ->
         {:ok, {unit, mult}} = TimeFrame.parse(timeframe)
@@ -165,7 +165,7 @@ defmodule Dukascopy do
   defp strategy_for_unit(unit, mult, from, to) do
     case {unit, mult} do
       {u, _} when u in ["t", "s"] ->
-        {:ticks, :resample}
+        {:tick, :resample}
 
       {"m", m} ->
         bar_strategy(:minute, m, from, to)

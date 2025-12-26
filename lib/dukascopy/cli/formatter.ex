@@ -5,7 +5,7 @@ defmodule Dukascopy.CLI.Formatter do
 
   ## Public API
 
-  def csv_header(:ticks), do: "timestamp,ask,bid,ask_volume,bid_volume"
+  def csv_header(:tick), do: "timestamp,ask,bid,ask_volume,bid_volume"
   def csv_header(_timeframe), do: "timestamp,open,high,low,close,volume"
 
   def to_csv(%Tick{} = tick) do
