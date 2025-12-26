@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test (Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }})
+    runs-on: ubuntu-22.04
+    if: github.event.pull_request.draft == false
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - elixir: "1.18"
+            otp: "25.3"
+          - elixir: "1.19.4"
+            otp: "28.3"
+
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: deps-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ matrix.elixir }}-${{ matrix.otp }}-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile with warnings as errors
+        run: mix compile --warnings-as-errors
+
+      - name: Run tests
+        run: mix test --trace
+
+  format:
+    name: Format
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19.4"
+          otp-version: "28.3"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: deps-${{ runner.os }}-1.19.4-28.3-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            deps-${{ runner.os }}-1.19.4-28.3-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Check formatting
+        run: mix format --check-formatted
+
+  credo:
+    name: Credo
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: "1.19.4"
+          otp-version: "28.3"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: deps-${{ runner.os }}-1.19.4-28.3-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            deps-${{ runner.os }}-1.19.4-28.3-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Run Credo
+        run: mix credo

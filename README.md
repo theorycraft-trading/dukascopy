@@ -1,8 +1,15 @@
+![CI](https://github.com/theorycraft-trading/dukascopy/actions/workflows/ci.yml/badge.svg)
+[![Documentation](https://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/dukascopy)
+[![Package](https://img.shields.io/hexpm/v/dukascopy.svg)](https://hex.pm/packages/dukascopy)
+
 # Dukascopy
 
 [Dukascopy](https://github.com/theorycraft-trading/dukascopy) is a [TheoryCraft](https://github.com/theorycraft-trading/theory_craft) extension for downloading and streaming historical market data from Dukascopy Bank SA.
 
 Access free historical tick and bar data for 1600+ instruments including Forex, Stocks, Crypto, Commodities, Bonds, ETFs, and Indices.
+
+For tutorials and guides, see the user documentation:
+- https://theorycraft-trading.com/docs/guides/dukascopy/
 
 ## ⚠️ Development Status
 
