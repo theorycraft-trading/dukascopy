@@ -210,15 +210,15 @@ defmodule Dukascopy.DataFeed do
 
   defp multiply_volume(data, factor) do
     case data do
-      %Tick{} ->
+      %Tick{bid_volume: bid_vol, ask_volume: ask_vol} = tick ->
         %Tick{
-          data
-          | bid_volume: data.bid_volume && data.bid_volume * factor,
-            ask_volume: data.ask_volume && data.ask_volume * factor
+          tick
+          | bid_volume: bid_vol && bid_vol * factor,
+            ask_volume: ask_vol && ask_vol * factor
         }
 
-      %Bar{} ->
-        %Bar{data | volume: data.volume && data.volume * factor}
+      %Bar{volume: vol} = bar ->
+        %Bar{bar | volume: vol && vol * factor}
     end
   end
 

@@ -115,7 +115,7 @@ defmodule Dukascopy.Helpers.PeriodGenerator do
 
   ## Private functions - Range-specific period generation
 
-  defp periods_for_range(:year, requested_granularity, from, to) do
+  defp periods_for_range(:year, requested_granularity, %DateTime{} = from, to) do
     start = %DateTime{from | month: 1, day: 1, hour: 0, minute: 0, second: 0, microsecond: {0, 0}}
 
     unfold_with_fallback(
@@ -128,7 +128,7 @@ defmodule Dukascopy.Helpers.PeriodGenerator do
     )
   end
 
-  defp periods_for_range(:month, requested_granularity, from, to) do
+  defp periods_for_range(:month, requested_granularity, %DateTime{} = from, to) do
     start = %DateTime{from | day: 1, hour: 0, minute: 0, second: 0, microsecond: {0, 0}}
 
     unfold_with_fallback(
@@ -141,7 +141,7 @@ defmodule Dukascopy.Helpers.PeriodGenerator do
     )
   end
 
-  defp periods_for_range(:day, _requested_granularity, from, to) do
+  defp periods_for_range(:day, _requested_granularity, %DateTime{} = from, to) do
     start = %DateTime{from | hour: 0, minute: 0, second: 0, microsecond: {0, 0}}
 
     Stream.unfold(start, fn current ->

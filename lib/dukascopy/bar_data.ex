@@ -179,14 +179,14 @@ defmodule Dukascopy.BarData do
     DateTime.add(midnight, time_delta, :second)
   end
 
-  defp calculate_bar_time(:hour, date, time_delta) do
+  defp calculate_bar_time(:hour, %Date{} = date, time_delta) do
     # time_delta is SECONDS from start of month
     first_of_month = %Date{date | day: 1}
     month_start = DateTime.new!(first_of_month, ~T[00:00:00], "Etc/UTC")
     DateTime.add(month_start, time_delta, :second)
   end
 
-  defp calculate_bar_time(:day, date, time_delta) do
+  defp calculate_bar_time(:day, %Date{} = date, time_delta) do
     # time_delta is SECONDS from start of year
     first_of_year = %Date{date | month: 1, day: 1}
     year_start = DateTime.new!(first_of_year, ~T[00:00:00], "Etc/UTC")

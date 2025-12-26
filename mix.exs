@@ -9,12 +9,15 @@ defmodule Dukascopy.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
-      preferred_cli_env: [ci: :test],
       aliases: aliases(),
       # elixirc_options: [warnings_as_errors: true],
       dialyzer: [plt_add_apps: [:mix]],
       escript: escript()
     ]
+  end
+
+  def cli() do
+    [preferred_envs: [ci: :test]]
   end
 
   defp escript() do
