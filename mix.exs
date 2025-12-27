@@ -61,6 +61,7 @@ defmodule Dukascopy.MixProject do
 
   defp deps() do
     [
+      # {:theory_craft, "~> 0.1.0-dev"},
       {:theory_craft, github: "theorycraft-trading/theory_craft"},
       {:req, "~> 0.5"},
       {:lzma, "~> 0.1"},
@@ -83,7 +84,7 @@ defmodule Dukascopy.MixProject do
 
   defp package() do
     [
-      files: ["lib", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE"],
+      files: ["lib", "priv", "mix.exs", "README.md", "CHANGELOG.md", "LICENSE"],
       licenses: ["Apache-2.0"],
       links: %{
         "Website" => @homepage_url,
