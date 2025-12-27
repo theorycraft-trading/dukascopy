@@ -109,7 +109,7 @@ defmodule Dukascopy.TickDataTest do
       opts = TestFixtures.stub_dukascopy(:tick_bang)
 
       ticks = TickData.fetch!("EUR/USD", ~D[2019-02-04], 0, opts)
-      assert length(ticks) > 0
+      assert [_ | _] = ticks
       assert hd(ticks).ask == 1.14545
     end
   end

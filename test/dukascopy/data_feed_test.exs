@@ -378,7 +378,7 @@ defmodule Dukascopy.DataFeedTest do
 
       # Should fetch minute files (candles_min_1), not hourly files (candles_hour_1)
       # because current month's hourly file doesn't exist yet
-      assert length(paths) > 0
+      assert [_ | _] = paths
       assert Enum.all?(paths, &String.contains?(&1, "candles_min_1"))
       refute Enum.any?(paths, &String.contains?(&1, "candles_hour_1"))
     end
@@ -436,7 +436,7 @@ defmodule Dukascopy.DataFeedTest do
 
       # Should fetch hourly files (candles_hour_1), not daily files (candles_day_1)
       # because current year's daily file doesn't exist yet
-      assert length(paths) > 0
+      assert [_ | _] = paths
       assert Enum.all?(paths, &String.contains?(&1, "candles_hour_1"))
       refute Enum.any?(paths, &String.contains?(&1, "candles_day_1"))
     end
@@ -497,7 +497,7 @@ defmodule Dukascopy.DataFeedTest do
 
       {:ok, stream} = DataFeed.stream(opts)
 
-      assert Enum.count(stream, &(&1.volume == 0.0)) > 0
+      assert Enum.any?(stream, &(&1.volume == 0.0))
     end
   end
 

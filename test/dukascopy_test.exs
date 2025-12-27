@@ -87,7 +87,7 @@ defmodule DukascopyTest do
 
       ticks = Dukascopy.stream("EUR/USD", :tick, opts) |> Enum.to_list()
 
-      assert length(ticks) > 0
+      assert [_ | _] = ticks
 
       Enum.each(ticks, fn tick ->
         assert DateTime.compare(tick.time, from) != :lt
@@ -235,7 +235,7 @@ defmodule DukascopyTest do
       ticks1 = Dukascopy.stream("EUR/USD", :tick, opts) |> Enum.to_list()
 
       assert File.exists?(cache_path)
-      assert length(File.ls!(cache_path)) > 0
+      assert [_ | _] = File.ls!(cache_path)
 
       ticks2 = Dukascopy.stream("EUR/USD", :tick, opts) |> Enum.to_list()
 
