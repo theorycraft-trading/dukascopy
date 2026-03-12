@@ -39,6 +39,21 @@ defmodule Dukascopy.CLI.Printer do
     IO.puts("")
   end
 
+  def print_none_success(duration_ms) do
+    print_divider()
+
+    message =
+      IO.ANSI.green() <>
+        IO.ANSI.bright() <>
+        "Stream completed" <>
+        IO.ANSI.reset()
+
+    IO.puts(message)
+    IO.puts("Duration: #{format_duration(duration_ms)}")
+    IO.puts("(No output file - format: none)")
+    IO.puts("")
+  end
+
   def print_error(message) do
     IO.puts(:stderr, IO.ANSI.red() <> IO.ANSI.bright() <> "Error: #{message}" <> IO.ANSI.reset())
   end

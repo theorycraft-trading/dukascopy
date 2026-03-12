@@ -48,9 +48,9 @@ defmodule Dukascopy.CLI.Options do
       doc: "Include flat (zero-volume) bars"
     ],
     format: [
-      type: {:in, ["csv", "json", "ndjson"]},
+      type: {:in, ["csv", "json", "ndjson", "none"]},
       default: "csv",
-      doc: "Output format"
+      doc: "Output format (none = no file output, useful with --cache)"
     ],
     output: [
       type: :string,
@@ -97,6 +97,15 @@ defmodule Dukascopy.CLI.Options do
       default: true,
       doc: "Fail after all retries exhausted"
     ],
+    continue_on_error: [
+      type: :boolean,
+      default: false,
+      doc: "Continue on fetch errors (WARNING: may cause data gaps)"
+    ],
+    proxy: [
+      type: :string,
+      doc: "Proxy URL (http://[user:pass@]host:port or socks5://host:port)"
+    ],
     market_open: [
       type: :string,
       default: "00:00:00",
@@ -139,6 +148,8 @@ defmodule Dukascopy.CLI.Options do
       retry_pause: :integer,
       retry_on_empty: :boolean,
       fail_after_retries: :boolean,
+      continue_on_error: :boolean,
+      proxy: :string,
       market_open: :string,
       weekly_open: :string,
       silent: :boolean,
@@ -209,7 +220,7 @@ defmodule Dukascopy.CLI.Options do
       --flats             Include flat (zero-volume) bars [default: false]
 
     Output options:
-      -f, --format        Output format: csv, json, ndjson [default: csv]
+      -f, --format        Output format: csv, json, ndjson, none [default: csv]
       -o, --output        Output directory [default: ./download]
       --filename          Custom filename (without extension)
 
@@ -222,6 +233,8 @@ defmodule Dukascopy.CLI.Options do
       --retry-pause       Pause between retries in ms [default: 500]
       --retry-on-empty    Retry on empty response [default: false]
       --no-fail-after-retries  Don't fail after all retries
+      --continue-on-error Continue on fetch errors (WARNING: may cause data gaps)
+      --proxy             Proxy URL (http://[user:pass@]host:port or socks5://host:port)
 
     Aggregation options:
       --market-open       Market open time (HH:MM:SS) [default: 00:00:00]
@@ -261,6 +274,8 @@ defmodule Dukascopy.CLI.Options do
       retry_delay: opts[:retry_pause],
       retry_on_empty: opts[:retry_on_empty],
       fail_after_retry_count: opts[:fail_after_retries],
+      halt_on_error: not opts[:continue_on_error],
+      proxy: opts[:proxy],
       market_open: parse_time(opts[:market_open]),
       weekly_open: String.to_atom(opts[:weekly_open]),
       silent: opts[:silent],

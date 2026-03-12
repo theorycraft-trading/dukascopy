@@ -15,7 +15,8 @@ defmodule Dukascopy.Client do
     :retry_log_level,
     :use_cache,
     :cache_folder_path,
-    :fail_after_retry_count
+    :fail_after_retry_count,
+    :proxy
   ]
 
   ## Public API
@@ -46,6 +47,7 @@ defmodule Dukascopy.Client do
     )
     |> Req.Request.register_options(@client_options)
     |> Req.Request.merge_options(client_opts)
+    |> maybe_add_proxy(client_opts)
     |> maybe_add_cache_steps(client_opts)
     |> Req.Request.append_response_steps(decompress_lzma: &decompress_lzma/1)
   end
@@ -60,6 +62,40 @@ defmodule Dukascopy.Client do
       %Req.Response{} -> true
       %{__exception__: true} -> true
       _ -> false
+    end
+  end
+
+  defp maybe_add_proxy(req, opts) do
+    case Keyword.get(opts, :proxy) do
+      nil ->
+        req
+
+      proxy_url ->
+        Req.Request.merge_options(req, connect_options: [proxy: parse_proxy(proxy_url)])
+    end
+  end
+
+  defp parse_proxy(proxy_url) when is_binary(proxy_url) do
+    uri = URI.parse(proxy_url)
+
+    case uri.scheme do
+      "socks5" ->
+        {:socks5, uri.host, uri.port || 1080}
+
+      scheme when scheme in ["http", "https"] ->
+        auth_opts =
+          if uri.userinfo do
+            [user, pass] = String.split(uri.userinfo, ":", parts: 2)
+            [proxy_auth: {:basic, user, pass}]
+          else
+            []
+          end
+
+        {String.to_atom(scheme), uri.host, uri.port || 8080, auth_opts}
+
+      other ->
+        raise ArgumentError,
+              "Unsupported proxy scheme: #{other}. Use http://, https://, or socks5://"
     end
   end
 
@@ -91,20 +127,28 @@ defmodule Dukascopy.Client do
     cache_file = cache_file_path(request.url, cache_path)
 
     case File.read(cache_file) do
-      {:ok, data} -> {request, Req.Response.new(status: 200, body: data)}
-      {:error, :enoent} -> request
+      {:ok, data} ->
+        enhanced_request = Req.Request.put_private(request, :cache_hit, true)
+        {enhanced_request, Req.Response.new(status: 200, body: data)}
+
+      {:error, :enoent} ->
+        request
     end
   end
 
   defp cache_write({request, %Req.Response{status: 200, body: body} = response})
        when byte_size(body) > 0 do
-    cache_path = request.options[:cache_folder_path] || @default_cache_folder_path
-    cache_file = cache_file_path(request.url, cache_path)
+    if request.private[:cache_hit] do
+      {request, response}
+    else
+      cache_path = request.options[:cache_folder_path] || @default_cache_folder_path
+      cache_file = cache_file_path(request.url, cache_path)
 
-    :ok = File.mkdir_p!(cache_path)
-    :ok = File.write!(cache_file, body)
+      :ok = File.mkdir_p!(cache_path)
+      :ok = File.write!(cache_file, body)
 
-    {request, response}
+      {request, response}
+    end
   end
 
   defp cache_write({request, response}), do: {request, response}

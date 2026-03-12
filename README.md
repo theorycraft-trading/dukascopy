@@ -77,8 +77,11 @@ Options:
   --to                End date (YYYY-MM-DD or 'now') [default: now]
   -t, --timeframe     Timeframe: tick, m1, m5, m15, m30, h1, h4, D, W, M [default: D]
   -p, --price-type    Price type: bid, ask, mid [default: bid]
-  -f, --format        Output format: csv, json, ndjson [default: csv]
+  -f, --format        Output format: csv, json, ndjson, none [default: csv]
   -o, --output        Output directory [default: ./download]
+  --cache             Enable file caching [default: false]
+  --proxy             Proxy URL (http://[user:pass@]host:port or socks5://host:port)
+  --continue-on-error Continue on fetch errors (WARNING: may cause data gaps)
   -h, --help          Show help message
 ```
 
