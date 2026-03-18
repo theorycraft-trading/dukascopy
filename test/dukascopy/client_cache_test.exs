@@ -133,4 +133,32 @@ defmodule Dukascopy.ClientCacheTest do
       refute File.exists?(cache_path)
     end
   end
+
+  describe "cache optimization" do
+    test "does not rewrite cache file when reading from cache", %{cache_path: cache_path} do
+      # Pre-populate cache with a file (LZMA compressed)
+      File.mkdir_p!(cache_path)
+      cache_file = Path.join(cache_path, "preexisting.bi5")
+      File.write!(cache_file, @valid_fixture)
+
+      # Get the original modification time
+      {:ok, %{mtime: original_mtime}} = File.stat(cache_file)
+
+      # Small delay to ensure mtime would change if file is rewritten
+      Process.sleep(10)
+
+      {opts, counter} = TestStubs.counting_fixed_stub(:cache_no_rewrite, 200, "new content")
+      opts = Keyword.merge(opts, use_cache: true, cache_folder_path: cache_path)
+
+      # Fetch - should read from cache (returns decompressed data)
+      assert {:ok, _decompressed_data} = Client.fetch("preexisting.bi5", opts)
+
+      # Network should not have been called
+      assert TestStubs.get_count(counter) == 0
+
+      # File should not have been rewritten (mtime unchanged)
+      {:ok, %{mtime: new_mtime}} = File.stat(cache_file)
+      assert original_mtime == new_mtime
+    end
+  end
 end

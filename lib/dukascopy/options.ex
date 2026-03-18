@@ -84,7 +84,8 @@ defmodule Dukascopy.Options do
       # Default exponential backoff: 200ms, 400ms, 800ms, 1600ms...
       retry_delay: &trunc(200 * :math.pow(2, &1)),
       market_open: ~T[00:00:00],
-      weekly_open: :monday
+      weekly_open: :monday,
+      proxy: nil
     ]
   end
 

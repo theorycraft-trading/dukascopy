@@ -109,10 +109,14 @@ defmodule Dukascopy.CLI do
     end_time = System.monotonic_time(:millisecond)
     duration = end_time - start_time
 
-    file_path
-    |> File.stat!()
-    |> Map.get(:size)
-    |> then(&Printer.print_success(file_path, &1, duration))
+    if opts.format != :none do
+      file_path
+      |> File.stat!()
+      |> Map.get(:size)
+      |> then(&Printer.print_success(file_path, &1, duration))
+    else
+      Printer.print_none_success(duration)
+    end
 
     :ok
   end
@@ -134,6 +138,8 @@ defmodule Dukascopy.CLI do
       retry_delay: opts.retry_delay,
       retry_on_empty: opts.retry_on_empty,
       fail_after_retry_count: opts.fail_after_retry_count,
+      halt_on_error: opts.halt_on_error,
+      proxy: opts.proxy,
       market_open: opts.market_open,
       weekly_open: opts.weekly_open
     ]
@@ -142,19 +148,20 @@ defmodule Dukascopy.CLI do
   end
 
   defp write_with_progress(stream, file_path, opts, has_progress) do
-    file_path
-    |> Path.dirname()
-    |> File.mkdir_p!()
+    if opts.format != :none do
+      file_path |> Path.dirname() |> File.mkdir_p!()
+    end
 
-    file = File.open!(file_path, [:write, :utf8])
+    file = if opts.format != :none, do: File.open!(file_path, [:write, :utf8])
 
     case opts.format do
       :csv -> write_csv_with_progress(file, stream, opts, has_progress)
       :json -> write_json_with_progress(file, stream, opts, has_progress)
       :ndjson -> write_ndjson_with_progress(file, stream, opts, has_progress)
+      :none -> write_none_with_progress(stream, opts, has_progress)
     end
 
-    File.close(file)
+    if file, do: File.close(file)
   end
 
   defp write_csv_with_progress(file, stream, opts, has_progress) do
@@ -183,6 +190,12 @@ defmodule Dukascopy.CLI do
     stream
     |> maybe_with_progress(opts, has_progress)
     |> Enum.each(&IO.puts(file, Formatter.to_json(&1)))
+  end
+
+  defp write_none_with_progress(stream, opts, has_progress) do
+    stream
+    |> maybe_with_progress(opts, has_progress)
+    |> Stream.run()
   end
 
   defp maybe_with_progress(stream, opts, true) do
