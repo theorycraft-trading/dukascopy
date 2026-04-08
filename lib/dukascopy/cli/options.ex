@@ -171,6 +171,7 @@ defmodule Dukascopy.CLI.Options do
   ## Public API
 
   def schema(), do: @schema
+  def cli_options(), do: @cli_options
 
   def parse(argv) do
     {opts, _args, invalid} = OptionParser.parse(argv, @cli_options)
