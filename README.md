@@ -101,8 +101,10 @@ Instruments.forex_majors()  # => ["AUD/USD", "EUR/USD", "GBP/USD", ...]
 Instruments.forex_crosses() # => ["AUD/CAD", "EUR/GBP", ...]
 Instruments.metals()        # => ["XAU/USD", "XAG/USD", ...]
 Instruments.stocks()        # => ["AAPL.US/USD", "TSLA.US/USD", ...]
+Instruments.indices()       # => ["USA30.IDX/USD", "USATECH.IDX/USD", ...]
 Instruments.commodities()   # => ["BRENT.CMD/USD", "COPPER.CMD/USD", ...]
 Instruments.agriculturals() # => ["COCOA.CMD/USD", "COFFEE.CMD/USX", ...]
+Instruments.crypto()        # => ["BTC/USD", "ETH/USD", ...]
 
 # Search instruments by name
 Instruments.search("eur")
@@ -195,8 +197,10 @@ Supported timeframes (strings or atoms):
 | Forex Crosses | 290+ | EUR/GBP, AUD/NZD, GBP/JPY |
 | Metals | 50+ | XAU/USD, XAG/USD, XPT/USD |
 | Stocks | 1000+ | AAPL.US/USD, TSLA.US/USD |
+| Indices | 21 | USA30.IDX/USD, USATECH.IDX/USD |
 | Commodities | 10+ | BRENT.CMD/USD, COPPER.CMD/USD |
 | Agriculturals | 6 | COCOA.CMD/USD, COFFEE.CMD/USX |
+| Crypto | 33 | BTC/USD, ETH/USD |
 
 ## Development
 
