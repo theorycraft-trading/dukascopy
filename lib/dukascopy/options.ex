@@ -184,7 +184,7 @@ defmodule Dukascopy.Options do
 
   defp extract_granularity(opts) do
     case Keyword.get(opts, :granularity) do
-      value when value in Enums.granularity(:__keys__) -> {:ok, value}
+      value when Enums.is_granularity_key(value) -> {:ok, value}
       value -> {:error, {:invalid_granularity, value}}
     end
   end
@@ -288,14 +288,14 @@ defmodule Dukascopy.Options do
 
   defp extract_price_type(opts) do
     case Keyword.get(opts, :price_type) do
-      value when value in Enums.price_type(:__keys__) -> {:ok, value}
+      value when Enums.is_price_type_key(value) -> {:ok, value}
       value -> {:error, {:invalid_price_type, value}}
     end
   end
 
   defp extract_volume_units(opts) do
     case Keyword.get(opts, :volume_units) do
-      value when value in Enums.volume_units(:__keys__) -> {:ok, value}
+      value when Enums.is_volume_units_key(value) -> {:ok, value}
       value -> {:error, {:invalid_volume_units, value}}
     end
   end
@@ -309,7 +309,7 @@ defmodule Dukascopy.Options do
 
   defp extract_weekly_open(opts) do
     case Keyword.get(opts, :weekly_open) do
-      value when value in Enums.weekly_open(:__keys__) -> {:ok, value}
+      value when Enums.is_weekly_open_key(value) -> {:ok, value}
       value -> {:error, {:invalid_weekly_open, value}}
     end
   end

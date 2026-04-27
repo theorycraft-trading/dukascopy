@@ -14,6 +14,20 @@ defmodule Dukascopy.Instruments do
   @groups Map.fetch!(@instruments_data, "groups")
   @instruments Map.fetch!(@instruments_data, "instruments")
 
+  @type history_granularity :: :tick | :minute | :hour | :day
+
+  @history_start_fields %{
+    tick: "history_start_tick",
+    minute: "history_start_60sec",
+    hour: "history_start_60min",
+    # Dukascopy currently reports history_start_day as 0 for all instruments.
+    day: "history_start_60min"
+  }
+
+  @history_start_field_names @history_start_fields
+                             |> Map.values()
+                             |> Enum.uniq()
+
   get_parent = fn info, target, get_parent ->
     cond do
       Map.fetch!(info, "id") == target ->
@@ -53,9 +67,16 @@ defmodule Dukascopy.Instruments do
   @fx_major_instruments get_group_instruments.("FX_MAJORS")
   @fx_crosses_instruments get_group_instruments.("FX_CROSSES")
   @stocks_instruments get_group_instruments.("STCK_CFD")
+  @indices_instruments get_group_instruments.("IDX")
   @metals_instruments get_group_instruments.("FX_METALS")
   @commodities_instruments get_group_instruments.("CMD")
   @agriculturals_instruments get_group_instruments.("CMD_AGRICULTURAL")
+  @crypto_instruments get_group_instruments.("VCCY")
+  @history_starts_by_instrument Map.new(@instruments, fn {_id, instrument_info} ->
+                                  name = Map.fetch!(instrument_info, "name")
+
+                                  {name, Map.take(instrument_info, @history_start_field_names)}
+                                end)
 
   ## Public API
 
@@ -153,6 +174,21 @@ defmodule Dukascopy.Instruments do
   def stocks(), do: @stocks_instruments
 
   @doc """
+  Returns the list of all Index CFD instruments.
+
+  ## Examples
+
+      iex> indices = Instruments.indices()
+      iex> "USA30.IDX/USD" in indices
+      true
+      iex> "USATECH.IDX/USD" in indices
+      true
+
+  """
+  @spec indices() :: [String.t()]
+  def indices(), do: @indices_instruments
+
+  @doc """
   Returns the list of all Metals instruments.
 
   ## Examples
@@ -196,6 +232,86 @@ defmodule Dukascopy.Instruments do
   """
   @spec agriculturals() :: [String.t()]
   def agriculturals(), do: @agriculturals_instruments
+
+  @doc """
+  Returns the list of all Crypto CFD instruments.
+
+  ## Examples
+
+      iex> crypto = Instruments.crypto()
+      iex> "BTC/USD" in crypto
+      true
+      iex> "ETH/USD" in crypto
+      true
+
+  """
+  @spec crypto() :: [String.t()]
+  def crypto(), do: @crypto_instruments
+
+  ## History start lookup
+
+  @doc """
+  Returns the earliest available historical timestamp for an instrument and native granularity.
+
+  Supported granularities map to Dukascopy's native files:
+
+    * `:tick` - raw tick files
+    * `:minute` - native 1-minute bars
+    * `:hour` - native 1-hour bars
+    * `:day` - daily bars derived from the 1-hour history start because Dukascopy currently
+      reports `history_start_day` as `0` for every instrument
+
+  ## Examples
+
+      iex> Instruments.get_history_start("EUR/USD", :minute)
+      {:ok, ~U[2007-01-01 00:00:00.000Z]}
+      iex> Instruments.get_history_start("EUR/USD", :day)
+      {:ok, ~U[2003-05-04 19:00:00.000Z]}
+      iex> Instruments.get_history_start("UNKNOWN", :minute)
+      {:error, {:unknown_instrument, "UNKNOWN"}}
+
+  """
+  @spec get_history_start(String.t(), history_granularity()) ::
+          {:ok, DateTime.t()}
+          | {:error, {:unknown_instrument, term()}}
+          | {:error, :history_start_unknown}
+  def get_history_start(instrument, granularity) do
+    with {:ok, field} <- fetch_history_start_field(granularity),
+         {:ok, starts} <- fetch_history_starts(instrument),
+         {:ok, unix_ms} <- parse_history_start_timestamp(Map.get(starts, field)) do
+      datetime_from_unix_ms(unix_ms)
+    end
+  end
+
+  @doc """
+  Same as `get_history_start/2` but raises if the lookup fails.
+
+  ## Examples
+
+      iex> Instruments.get_history_start!("EUR/USD", :tick)
+      ~U[2007-01-01 00:00:05.163Z]
+
+      iex> Instruments.get_history_start!("UNKNOWN", :tick)
+      ** (ArgumentError) unknown instrument: UNKNOWN
+
+  """
+  @spec get_history_start!(String.t(), history_granularity()) :: DateTime.t()
+  def get_history_start!(instrument, granularity) do
+    case get_history_start(instrument, granularity) do
+      {:ok, datetime} ->
+        datetime
+
+      {:error, {:unknown_instrument, unknown_instrument}} ->
+        raise ArgumentError, "unknown instrument: #{unknown_instrument}"
+
+      {:error, {:unsupported_granularity, unsupported_granularity}} ->
+        raise ArgumentError, "unsupported granularity: #{inspect(unsupported_granularity)}"
+
+      {:error, :history_start_unknown} ->
+        raise ArgumentError,
+              "history start unknown for #{instrument} at #{inspect(granularity)} granularity"
+    end
+  end
 
   ## Historical filename lookup
 
@@ -332,6 +448,42 @@ defmodule Dukascopy.Instruments do
         nil -> {:error, {:unknown_instrument, instrument}}
         pip_value -> {:ok, 10 / pip_value}
       end
+    end
+  end
+
+  defp fetch_history_start_field(granularity) do
+    case Map.fetch(@history_start_fields, granularity) do
+      {:ok, field} -> {:ok, field}
+      :error -> {:error, {:unsupported_granularity, granularity}}
+    end
+  end
+
+  defp fetch_history_starts(instrument) do
+    case Map.fetch(@history_starts_by_instrument, instrument) do
+      {:ok, starts} -> {:ok, starts}
+      :error -> {:error, {:unknown_instrument, instrument}}
+    end
+  end
+
+  defp parse_history_start_timestamp(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {timestamp, ""} when timestamp > 0 -> {:ok, normalize_unix_timestamp(timestamp)}
+      _ -> {:error, :history_start_unknown}
+    end
+  end
+
+  defp parse_history_start_timestamp(_value), do: {:error, :history_start_unknown}
+
+  # Most metadata timestamps are Unix milliseconds, but a few history_start_60sec
+  # values are Unix seconds. Anything below this threshold would be before 1973
+  # if interpreted as milliseconds, which is invalid for Dukascopy history.
+  defp normalize_unix_timestamp(timestamp) when timestamp < 100_000_000_000, do: timestamp * 1000
+  defp normalize_unix_timestamp(timestamp), do: timestamp
+
+  defp datetime_from_unix_ms(unix_ms) do
+    case DateTime.from_unix(unix_ms, :millisecond) do
+      {:ok, datetime} -> {:ok, datetime}
+      {:error, _reason} -> {:error, :history_start_unknown}
     end
   end
 end

@@ -65,7 +65,7 @@ defmodule Dukascopy.MixProject do
       {:theory_craft, github: "theorycraft-trading/theory_craft"},
       {:req, "~> 0.5"},
       {:lzma, "~> 0.1"},
-      {:simple_enum, "~> 0.1"},
+      {:simple_enum, "~> 1.0"},
       {:nimble_options, "~> 1.1"},
       {:owl, "~> 0.13"},
 

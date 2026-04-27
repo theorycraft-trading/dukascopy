@@ -20,7 +20,7 @@ defmodule Dukascopy.Enums do
       Enums.price_type(:invalid, :key)           #=> ** (ArgumentError)
 
       # Introspection
-      Enums.price_type(:__keys__)  #=> [:bid, :ask, :mid]
+      Enums.price_type_keys()  #=> [:bid, :ask, :mid]
 
   """
 
