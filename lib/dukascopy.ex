@@ -39,7 +39,7 @@ defmodule Dukascopy do
 
   """
 
-  alias Dukascopy.{DataFeed, Options}
+  alias Dukascopy.{Cursor, DataFeed, Options, Page, Paginator}
   alias TheoryCraft.{MarketSource, TimeFrame}
   alias TheoryCraft.MarketSource.MarketEvent
 
@@ -136,6 +136,66 @@ defmodule Dukascopy do
     |> Stream.map(fn %MarketEvent{data: %{^output_name => value}} -> value end)
   end
 
+  @doc """
+  Fetches a bounded page of ticks or bars.
+
+  Uses the same options and timeframe resolution as `stream/3`, but returns at most
+  `:page_size` items and a cursor that can be passed back with `:cursor`.
+
+  Pagination is based on the underlying Dukascopy source position, not a global
+  output offset.
+
+  ## Parameters
+
+    * `instrument` - Trading instrument (e.g., "EUR/USD", "AAPL.US/USD")
+    * `timeframe` - Target timeframe: `:tick` or a TheoryCraft timeframe (atom or string)
+    * `opts` - Options keyword list. Accepts all `stream/3` options plus:
+      * `:page_size` - Maximum number of items to return (default: `1000`)
+      * `:cursor` - Cursor returned by the previous page
+
+  ## Returns
+
+    * `{:ok, %Dukascopy.Page{items: items, next_cursor: cursor}}`
+    * `{:error, reason}`
+
+  ## Examples
+
+      iex> {:ok, page} = Dukascopy.fetch_page("EUR/USD", :tick,
+      ...>   from: ~D[2024-01-01],
+      ...>   to: ~D[2024-01-02],
+      ...>   page_size: 1000
+      ...> )
+      iex> {:ok, next_page} = Dukascopy.fetch_page("EUR/USD", :tick,
+      ...>   from: ~D[2024-01-01],
+      ...>   to: ~D[2024-01-02],
+      ...>   cursor: page.next_cursor
+      ...> )
+
+  """
+  @spec fetch_page(String.t(), timeframe(), Keyword.t()) ::
+          {:ok, Page.t(term())} | {:error, term()}
+  def fetch_page(instrument, timeframe, opts \\ []) do
+    page_size = Keyword.get(opts, :page_size, 1000)
+    cursor = Keyword.get(opts, :cursor)
+
+    with {:ok, page_size} <- validate_page_size(page_size),
+         {:ok, cursor} <- validate_cursor(cursor),
+         {:ok, validated_opts} <- Options.validate(instrument, timeframe, clean_page_opts(opts)) do
+      do_fetch_page(instrument, timeframe, validated_opts, page_size, cursor)
+    end
+  end
+
+  @doc """
+  Same as `fetch_page/3` but raises on error.
+  """
+  @spec fetch_page!(String.t(), timeframe(), Keyword.t()) :: Page.t(term())
+  def fetch_page!(instrument, timeframe, opts \\ []) do
+    case fetch_page(instrument, timeframe, opts) do
+      {:ok, page} -> page
+      {:error, reason} -> raise ArgumentError, "Failed to fetch page: #{inspect(reason)}"
+    end
+  end
+
   ## Private functions - Resample
 
   defp maybe_resample(market, strategy, timeframe, opts) do
@@ -148,6 +208,40 @@ defmodule Dukascopy do
         {MarketSource.resample(market, timeframe, resample_opts), "resampled"}
     end
   end
+
+  ## Private functions - Pagination
+
+  defp do_fetch_page(instrument, timeframe, validated_opts, page_size, cursor) do
+    {from, to} = Keyword.fetch!(validated_opts, :date_range)
+    {source, strategy} = determine_source_and_strategy(timeframe, from, to)
+
+    Paginator.fetch_page(
+      instrument,
+      timeframe,
+      source,
+      strategy,
+      validated_opts,
+      page_size,
+      cursor
+    )
+  end
+
+  defp clean_page_opts(opts), do: Keyword.drop(opts, [:cursor, :page_size])
+
+  defp validate_page_size(page_size) when is_integer(page_size) and page_size > 0 do
+    {:ok, page_size}
+  end
+
+  defp validate_page_size(page_size), do: {:error, {:invalid_page_size, page_size}}
+
+  defp validate_cursor(nil), do: {:ok, nil}
+
+  defp validate_cursor(%Cursor{source_time: %DateTime{}, source_skip: source_skip} = cursor)
+       when is_integer(source_skip) and source_skip >= 0 do
+    {:ok, cursor}
+  end
+
+  defp validate_cursor(cursor), do: {:error, {:invalid_cursor, cursor}}
 
   ## Private functions - Source and strategy determination
 

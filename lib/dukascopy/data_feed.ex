@@ -67,7 +67,7 @@ defmodule Dukascopy.DataFeed do
 
   require Logger
 
-  alias Dukascopy.{BarData, Options, TickData}
+  alias Dukascopy.{BarData, Cursor, Options, TickData}
   alias Dukascopy.Helpers.PeriodGenerator
   alias TheoryCraft.MarketSource.{Bar, Tick}
 
@@ -76,17 +76,35 @@ defmodule Dukascopy.DataFeed do
   @impl true
   def stream(opts) do
     with {:ok, validated} <- Options.validate_feed(opts) do
-      stream =
-        case Keyword.fetch!(validated, :granularity) do
-          :tick -> build_tick_stream(validated)
-          granularity -> build_bar_stream(granularity, validated)
-        end
+      {:ok, apply_filters(build_source_stream(validated), validated)}
+    end
+  end
 
-      {:ok, apply_filters(stream, validated)}
+  @doc false
+  @spec cursor_stream(Keyword.t()) :: {:ok, Enumerable.t()} | {:error, term()}
+  def cursor_stream(opts) do
+    cursor = Keyword.get(opts, :cursor)
+
+    with {:ok, validated} <- Options.validate_feed(opts) do
+      stream =
+        validated
+        |> build_source_stream()
+        |> attach_source_cursors()
+        |> drop_before_cursor(cursor)
+        |> apply_cursor_filters(validated)
+
+      {:ok, stream}
     end
   end
 
   ## Private functions - Stream building
+
+  defp build_source_stream(opts) do
+    case Keyword.fetch!(opts, :granularity) do
+      :tick -> build_tick_stream(opts)
+      granularity -> build_bar_stream(granularity, opts)
+    end
+  end
 
   defp build_tick_stream(opts) do
     instrument = Keyword.fetch!(opts, :instrument)
@@ -123,6 +141,37 @@ defmodule Dukascopy.DataFeed do
       BarData.fetch!(instrument, fetch_granularity, period, opts)
     end)
     |> Stream.filter(&in_date_range?(&1, from, to))
+  end
+
+  defp attach_source_cursors(stream) do
+    Stream.transform(stream, {nil, -1}, fn item, {last_time, last_skip} ->
+      source_skip =
+        if item.time == last_time do
+          last_skip + 1
+        else
+          0
+        end
+
+      cursor = %Cursor{source_time: item.time, source_skip: source_skip}
+
+      {[{item, cursor}], {item.time, source_skip}}
+    end)
+  end
+
+  defp drop_before_cursor(stream, nil), do: stream
+
+  defp drop_before_cursor(stream, %Cursor{} = cursor) do
+    Stream.drop_while(stream, fn {_item, source_cursor} ->
+      before_cursor?(source_cursor, cursor)
+    end)
+  end
+
+  defp before_cursor?(%Cursor{} = source_cursor, %Cursor{} = cursor) do
+    case DateTime.compare(source_cursor.source_time, cursor.source_time) do
+      :lt -> true
+      :gt -> false
+      :eq -> source_cursor.source_skip < cursor.source_skip
+    end
   end
 
   ## Private functions - Batch fetching
@@ -188,23 +237,55 @@ defmodule Dukascopy.DataFeed do
     |> maybe_apply_time_adjustments(opts)
   end
 
+  defp apply_cursor_filters(stream, opts) do
+    stream
+    |> maybe_filter_cursor_flats(opts)
+    |> maybe_convert_cursor_volume(opts)
+    |> maybe_apply_cursor_time_adjustments(opts)
+  end
+
   # Note: ignore_flats only applies to bars, not ticks
   defp maybe_filter_flats(stream, opts) do
     if Keyword.fetch!(opts, :ignore_flats) do
-      Stream.reject(stream, fn
-        %Tick{} -> false
-        %Bar{volume: v} -> (v || 0) == 0
-      end)
+      Stream.reject(stream, &flat?/1)
+    else
+      stream
+    end
+  end
+
+  defp flat?(%Tick{}), do: false
+  defp flat?(%Bar{volume: v}), do: (v || 0) == 0
+
+  defp maybe_filter_cursor_flats(stream, opts) do
+    if Keyword.fetch!(opts, :ignore_flats) do
+      Stream.reject(stream, fn {item, _cursor} -> flat?(item) end)
     else
       stream
     end
   end
 
   defp maybe_convert_volume(stream, opts) do
-    case Keyword.fetch!(opts, :volume_units) do
+    case volume_factor(opts) do
       :millions -> stream
-      :thousands -> Stream.map(stream, &multiply_volume(&1, 1_000))
-      :units -> Stream.map(stream, &multiply_volume(&1, 1_000_000))
+      factor -> Stream.map(stream, &multiply_volume(&1, factor))
+    end
+  end
+
+  defp maybe_convert_cursor_volume(stream, opts) do
+    case volume_factor(opts) do
+      :millions ->
+        stream
+
+      factor ->
+        Stream.map(stream, fn {item, cursor} -> {multiply_volume(item, factor), cursor} end)
+    end
+  end
+
+  defp volume_factor(opts) do
+    case Keyword.fetch!(opts, :volume_units) do
+      :millions -> :millions
+      :thousands -> 1_000
+      :units -> 1_000_000
     end
   end
 
@@ -230,6 +311,19 @@ defmodule Dukascopy.DataFeed do
       stream
     else
       Stream.map(stream, &apply_time_adjustment(&1, timezone, utc_offset))
+    end
+  end
+
+  defp maybe_apply_cursor_time_adjustments(stream, opts) do
+    timezone = Keyword.fetch!(opts, :timezone)
+    utc_offset = Keyword.fetch!(opts, :utc_offset)
+
+    if timezone == "Etc/UTC" and utc_offset == ~T[00:00:00] do
+      stream
+    else
+      Stream.map(stream, fn {item, cursor} ->
+        {apply_time_adjustment(item, timezone, utc_offset), cursor}
+      end)
     end
   end
 
